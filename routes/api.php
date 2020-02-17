@@ -38,7 +38,6 @@ Route::name('user-info')->post('user/crear', 'User\UserController@CrearUsuario')
 Route::name('user-info')->put('user/editar/{id}', 'User\UserController@EditarUsuario');
 Route::name('user-info')->put('user/editar/password/{id}', 'User\UserController@EditarUsuarioPassword');
 Route::resource('user', 'User\UserController');
-Route::resource('medico', 'Medico\MedicoController');
 
 /* -------------------------------------------------------------------------- */
 /*                               RUTAS GENERICAS                              */
@@ -49,6 +48,7 @@ Route::resource('articulos', 'Articulos\ArticuloController');
 Route::resource('produccion', 'Produccion\ProduccionController'); 
 Route::resource('calidad', 'Calidad\CalidadController'); 
 Route::resource('sector', 'Sector\SectorController'); 
+Route::resource('insumos', 'Insumos\InsumoController'); 
 
 /* -------------------------------------------------------------------------- */
 /*                             RUTAS DE PRODUCCION                            */
@@ -84,9 +84,16 @@ Route::name('calidad')->put('produccion/{id}', 'Calidad\CalidadController@putCal
 /* -------------------------------------------------------------------------- */
 
 
-Route::name('insumos')->post('insumos', 'Insumos\InsumosController@postInsumos');
-Route::name('insumos')->get('insumos/by/fecha', 'Insumos\InsumosController@getInsumosByFecha');
-Route::name('insumos')->put('insumos/{id}', 'Insumos\InsumosController@putInsumos'); 
+Route::name('insumos-consulta')->post('insumos', 'Insumos\InsumoController@postInsumos');
+Route::name('insumos-consulta')->get('insumos/by/fecha', 'Insumos\InsumoController@getInsumosByFecha');
+Route::name('insumos-consulta')->get('insumos/by/articulo', 'Insumos\InsumoController@getInsumosByArticulo');
+Route::name('insumos-consulta')->put('insumos/{id}', 'Insumos\InsumoController@putInsumos'); 
+
+Route::name('insumos-consulta')->get('insumos/stock/by/estado', 'Insumos\InsumoController@getStockInsumoByEstado');
+Route::name('insumos-consulta')->get('insumos/stock/by/produccion', 'Insumos\InsumoController@getStockInsumoByProduccion');
+Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoController@getStockInsumoByDate');
+Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
+
 
 
 
