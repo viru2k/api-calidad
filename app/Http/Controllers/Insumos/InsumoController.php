@@ -18,59 +18,105 @@ class InsumoController extends ApiController
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+   
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+/* -------------------------------------------------------------------------- */
+/*                             CREACION DE INSUMO                             */
+/* -------------------------------------------------------------------------- */
+
     public function store(Request $request)
     {
-        //
+      $id =    DB::table('insumo')->insertGetId([
+        
+        'descripcion' => $request->descripcion, 
+        'unidad_id' => $request->unidad_id,        
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);    
+
+
+      return response()->json($turno, "200");  
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+/* -------------------------------------------------------------------------- */
+/*                       MODIFICACION DE INSUMO PRIMARIO                      */
+/* -------------------------------------------------------------------------- */
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+      
+      $res =  DB::table('insumo')
+      ->where('id', $id)
+      ->update([
+        'descripcion' => $request->input('es_habilitado'),
+        'unidad_id' => $request->input('unidad_id'),
+        'updated_at' => date("Y-m-d H:i:s")]);
+
+        return response()->json($res, "200");
+    }
+
+
+/* -------------------------------------------------------------------------- */
+/*                         INGRESO DE INSUMOS A STOCK                         */
+/* -------------------------------------------------------------------------- */
+
+
+    public function setInsumoStock(Request $request)
+    {
+      $tmp_fecha = str_replace('/', '-', $request->input('fecha_ingreso'));
+      $fecha_ingreso =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+      $tmp_fecha = str_replace('/', '-', $request->input('fecha_finalizacion'));
+      $fecha_finalizacion =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+
+      $id =    DB::table('insumo_stock')->insertGetId([
+        
+        'insumo_id' => $request->insumo_id, 
+        'fecha_ingreso' => $fecha_ingreso,        
+        'fecha_finalizado' => $fecha_finalizado,  
+        'cantidad' => $request->cantidad,  
+        'cantidad_usada' => $request->cantidad_usada,  
+        'cantidad_existente' => $request->cantidad_existente,  
+        'unidad_id' => $request->unidad_id,  
+        'produccion_id' => $request->produccion_id,  
+        'usuario_alta_id' => $request->usuario_alta_id,  
+        'estado' => 'ACTIVO',  
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);    
+
+
+      return response()->json($turno, "200");  
+    }
+
+
+/* -------------------------------------------------------------------------- */
+/*                    MODIFICACION DE EXISTENCIA DE INSUMO                    */
+/* -------------------------------------------------------------------------- */
+
+    //TODO  CALCULAR LA CANTIDAD EXISTENTE BASANDOSE EN LA CANTIDAD
+
+    public function updInsumoStock(Request $request, $id)
+    {
+      
+      $tmp_fecha = str_replace('/', '-', $request->input('fecha_ingreso'));
+      $fecha_ingreso =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+      $tmp_fecha = str_replace('/', '-', $request->input('fecha_finalizacion'));
+      $fecha_finalizacion =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+
+      $res =  DB::table('insumo_stock')
+      ->where('id', $id)
+      ->update([
+        'fecha_ingreso' => $fecha_ingreso,
+        'fecha_finalizacion' => $fecha_finalizacion,
+        'cantidad' => $request->input('cantidad'),
+        'cantidad_usada' => $request->input('cantidad_usada'),
+        'cantidad_existente' => $request->input('cantidad_existente'),
+        'unidad_id' => $request->input('unidad_id'),
+        'produccion_id' => $request->input('produccion_id '),
+        'usuario_alta_id' => $request->input('usuario_alta_id'),
+        'updated_at' => date("Y-m-d H:i:s")]);
+        
+        return response()->json($res, "200");
     }
 
     /**
@@ -104,6 +150,10 @@ public function getInsumosByArticulo(Request $request)
   return $horario;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                        OBTENGO EL INSUMO POR ESTADO                        */
+/* -------------------------------------------------------------------------- */
+
 public function getStockInsumoByEstado(Request $request)
 {
     $estado =  $request->input('estado');   
@@ -117,6 +167,10 @@ public function getStockInsumoByEstado(Request $request)
   return $horario;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/*                   OBTENGO EL INSUMO POR ID  DE PRODUCCION                  */
+/* -------------------------------------------------------------------------- */
 
 public function getStockInsumoByProduccion(Request $request)
 {
@@ -132,6 +186,11 @@ public function getStockInsumoByProduccion(Request $request)
 
   return $horario;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/*                   OBTENGO EL INSUMO POR PERIODO DE FECHAS                  */
+/* -------------------------------------------------------------------------- */
 
 public function getStockInsumoByDate(Request $request)
 {
@@ -150,6 +209,10 @@ public function getStockInsumoByDate(Request $request)
   return $horario;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                 OBTENGO EL INSUMO DE PRODUCCION POR FECHAS                 */
+/* -------------------------------------------------------------------------- */
+
 public function getStockInsumoProduccionByDate(Request $request)
 {
     $tmp_fecha = str_replace('/', '-', $request->input('fecha_desde'));
@@ -166,5 +229,5 @@ public function getStockInsumoProduccionByDate(Request $request)
 
   return $horario;
 }
-    // SELECT * FROM insumo, unidad, users , insumo_stock LEFT JOIN produccion ON insumo_stock.produccion_id = produccion.id WHERE insumo_stock.insumo_id = insumo.id AND insumo_stock.unidad_id = unidad.id AND insumo_stock.usuario_alta_id = users.id
+    
 }
