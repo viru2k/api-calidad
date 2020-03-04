@@ -17,8 +17,10 @@ class ArticuloController extends ApiController
      */
     public function index()
     {
-        $Articulo = Articulo::all();
-        return $this->showAll($Articulo);
+      $res = DB::select( DB::raw("SELECT articulo.id ,articulo.descripcion , unidad.descripcion as unidad_descripcion, articulo.unidad_id FROM articulo, unidad WHERE articulo.unidad_id = unidad.id
+       "));
+    
+          return response()->json($res, "200");
     }
 
     /**
@@ -29,14 +31,16 @@ class ArticuloController extends ApiController
      */
     public function store(Request $request)
     {
-        $rules = [
-            'descripcion' => 'required',
-            'unidad_id' => 'required'
-        ];
-
-        $this->validate($request, $rules);  
-        $Articulo = Articulo::create($request->all());
-        return $this->showOne($Articulo);
+       
+      $id =    DB::table('articulo')->insertGetId([
+        
+        'descripcion' => $request->descripcion, 
+        'unidad_id' => $request->unidad_id,        
+         
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);    
+      return response()->json($id, "200");
     }
 
     /**
@@ -61,18 +65,15 @@ class ArticuloController extends ApiController
      */
     public function update(Request $request, $id)
     {
-        $pmo = Articulo::findOrFail($id);
-        $pmo->fill($request->only([
-            'descripcion',
-            'unidad_id'
-
-    ]));
-
-   if ($pmo->isClean()) {
-        return $this->errorRepsonse('Se debe especificar al menos un valor', 422);
-    }
-   $pmo->save();
-    return $this->showOne($pmo);
+       
+        $res =  DB::table('articulo')
+        ->where('id', $id)
+        ->update([
+          'descripcion' => $request->input('descripcion'),
+          'unidad_id' =>  $request->input('unidad_id'),   
+          'updated_at' => date("Y-m-d H:i:s")]);
+  
+          return response()->json($res, "200");
     }
     /**
      * Remove the specified resource from storage.
@@ -83,5 +84,62 @@ class ArticuloController extends ApiController
     public function destroy($id)
     {
         //
+    }
+
+
+    public function getArticuloConfeccionByArticuloId(Request $request)
+    {
+        $articulo_id = $request->input('articulo_id');
+     
+      $res = DB::select( DB::raw("SELECT articulo_confeccion.id, articulo_confeccion.cantidad , articulo_confeccion.VOLUMEN, articulo_confeccion.unidad, articulo.id as articulo_id, articulo.descripcion as articulo_descripcion, insumo.descripcion as insumo_descripcion, insumo.id as insumo_id, unidad.descripcion as unidad_descripcion ,unidad.id as unidad_id  
+      FROM articulo_confeccion, articulo, insumo, unidad 
+      WHERE  articulo_confeccion.articulo_id = articulo.id AND articulo_confeccion.insumo_id = insumo.id AND insumo.unidad_id = unidad.id AND  articulo_confeccion.articulo_id = :articulo_id
+       "), array(                       
+        'articulo_id' => $articulo_id
+      ));
+    
+          return response()->json($res, "200");
+    }
+
+    public function setArticuloConfeccion(Request $request){
+
+
+
+      $id =    DB::table('articulo_confeccion')->insertGetId([
+        
+        'articulo_id' => $request->articulo_id, 
+        'insumo_id' => $request->insumo_id,        
+        'cantidad' => $request->cantidad, 
+        'VOLUMEN' => $request->VOLUMEN, 
+        'unidad' => $request->unidad,         
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);    
+      return response()->json($id, "200");  
+    }
+
+    public function updateArticuloConfeccion(Request $request)
+    {
+ 
+
+      $res =  DB::table('articulo_confeccion')
+      ->where('id', $id)
+      ->update([
+        'articulo_id' => $request->input('articulo_id'),
+        'insumo_id' => $request->input('insumo_id'),
+        'cantidad' => $request->input('cantidad'),
+        'VOLUMEN' => $request->input('VOLUMEN'),
+        'unidad' => $request->input('unidad'),        
+        'updated_at' => date("Y-m-d H:i:s")]);
+
+        return response()->json($res, "200");
+    }
+
+    public function delArticuloConfeccion(Request $request){
+      $id = $request->input('id');
+     $res =  DB::table('articulo_confeccion')->delete($id);
+      
+     // echo '¡ass';
+      return response()->json($res, "200");
     }
 }

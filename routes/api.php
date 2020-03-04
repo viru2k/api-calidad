@@ -65,9 +65,20 @@ Route::name('produccion')->put('produccion/{id}', 'Produccion\ProduccionControll
 /*                              RUTAS DE ARTICULO                             */
 /* -------------------------------------------------------------------------- */
 
-Route::name('articulo')->post('articulo',         'Articulo\ArticuloController@postArticulo');
-Route::name('articulo')->get('articulo/by/fecha', 'Articulo\ArticuloController@getArticuloByFecha');
-Route::name('articulo')->put('articulo/{id}',     'Articulo\ArticuloController@putArticulo'); 
+Route::name('articulo')->post('articulo',         'Articulos\ArticuloController@postArticulo');
+Route::name('articulo')->get('articulo/by/fecha', 'Articulos\ArticuloController@getArticuloByFecha');
+Route::name('articulo')->put('articulo/{id}',     'Articulos\ArticuloController@putArticulo'); 
+
+
+
+/* -------------------------------------------------------------------------- */
+/*                              RUTAS DE ARTICULO CONFECCION                            */
+/* -------------------------------------------------------------------------- */
+
+Route::name('articulo-confeccion')->post('articulo/confeccion',         'Articulos\ArticuloController@setArticuloConfeccion');
+Route::name('articulo-confeccion')->get('articulo/confeccion', 'Articulos\ArticuloController@getArticuloConfeccionByArticuloId');
+Route::name('articulo-confeccion')->put('articulo/confeccion/{id}',     'Articulos\ArticuloController@updateArticuloConfeccion'); 
+Route::name('articulo-confeccion')->get('articulos/confeccion/borrar',     'Articulos\ArticuloController@delArticuloConfeccion'); 
 
 
 /* -------------------------------------------------------------------------- */
@@ -75,16 +86,16 @@ Route::name('articulo')->put('articulo/{id}',     'Articulo\ArticuloController@p
 /* -------------------------------------------------------------------------- */
 
 
-Route::name('calidad')->post('calidad', 'Calidad\CalidadController@postCalidad');
-Route::name('calidad')->get('calidad/by/fecha', 'Calidad\CalidadController@getCalidadByFecha');
-Route::name('calidad')->put('produccion/{id}', 'Calidad\CalidadController@putCalidad'); 
+Route::name('calidad')->post('calidad/tipocontrol', 'Calidad\CalidadController@postCalidad');
+Route::name('calidad')->get('calidad/control/by/fecha', 'Calidad\CalidadController@getCalidadByFecha');
+Route::name('calidad')->put('calidad/{id}', 'Calidad\CalidadController@putCalidad'); 
 
 /* -------------------------------------------------------------------------- */
 /*                              RUTAS DE INSUMOS                              */
 /* -------------------------------------------------------------------------- */
 
 
-Route::name('insumos-consulta')->post('insumos', 'Insumos\InsumoController@postInsumos');
+//Route::name('insumos-consulta')->post('insumos', 'Insumos\InsumoController@postInsumos');
 Route::name('insumos-consulta')->get('insumos/by/fecha', 'Insumos\InsumoController@getInsumosByFecha');
 Route::name('insumos-consulta')->get('insumos/by/articulo', 'Insumos\InsumoController@getInsumosByArticulo');
 Route::name('insumos-consulta')->put('insumos/{id}', 'Insumos\InsumoController@putInsumos'); 
@@ -95,8 +106,14 @@ Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoCo
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
 
 
+/* -------------------------------------------------------------------------- */
+/*                             RUTAS DE PRODUCCION                            */
+/* -------------------------------------------------------------------------- */
 
-
+Route::name('produccion-consulta')->get('produccion/movimiento/stock', 'Produccion\ProduccionController@getStockProduccion');
+Route::name('produccion-consulta')->get('produccion/by/dates', 'Produccion\ProduccionController@getProduccionStockByDates');
+Route::name('produccion-consulta')->put('produccion/{id}', 'Produccion\ProduccionController@updProduccionStock'); 
+Route::name('produccion-consulta')->post('produccion/stock', 'Produccion\ProduccionController@setProduccionStock');
 
 /** FILE MANAGER **/
 Route::name('archivos')->post('/multiuploads/estudios', 'Upload\UploadController@showUploadFile');
