@@ -17,7 +17,7 @@ header('Access-Control-Allow-Origin: *');
     header("Access-Control-Allow-Origin: https://clinicaz.com.ar");
     header("Access-Control-Allow-Origin: https://www.clinicaz.com.ar");
     //header("Access-Control-Allow-Origin: https://clinicaz.com.ar/graziani");
-   // header("Access-Control-Allow-Origin: http://localhost:4200");
+    header("Access-Control-Allow-Origin: http://localhost:4200");
 
 /*
 |--------------------------------------------------------------------------

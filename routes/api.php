@@ -114,6 +114,13 @@ Route::name('produccion-consulta')->get('produccion/movimiento/stock', 'Producci
 Route::name('produccion-consulta')->get('produccion/by/dates', 'Produccion\ProduccionController@getProduccionStockByDates');
 Route::name('produccion-consulta')->put('produccion/{id}', 'Produccion\ProduccionController@updProduccionStock'); 
 Route::name('produccion-consulta')->post('produccion/stock', 'Produccion\ProduccionController@setProduccionStock');
+Route::name('produccion-consulta')->post('produccion/orden/pedido', 'Produccion\ProduccionController@setOrdenPedido'); 
+Route::name('produccion-consulta')->get('produccion/orden/pedido/estado', 'Produccion\ProduccionController@getOrdenPedidoEstado');
+Route::name('produccion-consulta')->get('produccion/orden/pedido/by/id', 'Produccion\ProduccionController@getOrdenPedidoDetalleById');
+Route::name('produccion-consulta')->get('produccion/orden/pedido/by/estado', 'Produccion\ProduccionController@getOrdenPedidoDetalleByEstado');
+Route::name('produccion-consulta')->get('produccion/orden/pedido/estado/editar', 'Produccion\ProduccionController@updOrdenPedido');
+Route::name('produccion-consulta')->post('produccion/crear', 'Produccion\ProduccionController@setProduccion');
+
 
 /** FILE MANAGER **/
 Route::name('archivos')->post('/multiuploads/estudios', 'Upload\UploadController@showUploadFile');

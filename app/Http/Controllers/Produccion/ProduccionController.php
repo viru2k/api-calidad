@@ -37,29 +37,42 @@ class ProduccionController extends Controller
 /*                             CREO LA PRODUCCION                             */
 /* -------------------------------------------------------------------------- */
 
-    public function store(Request $request)
+    public function setProduccion(Request $request)
     {
         $tmp_fecha = str_replace('/', '-', $request->fecha_produccion);
         $fecha_produccion =  date('Y-m-d H:i', strtotime($tmp_fecha));   
-        $tmp_fecha = str_replace('/', '-', $request->fecha_pedido);
-        $fecha_pedido =  date('Y-m-d H:i', strtotime($tmp_fecha)); 
+     
 
-      $id =    DB::table('produccion')->insertGetId([
+      $produccion_id =    DB::table('produccion')->insertGetId([
         
-        'articulo_id' => $request->articulo_id, 
-        'fecha_pedido' => $fecha_pedido, 
+        'orden_pedido_articulos_id' => $request->orden_pedido_articulos_id,        
+        'articulo_id' => $request->articulo_id,         
         'fecha_produccion' => $fecha_produccion, 
         'unidad_id' => $request->unidad_id,        
         'cantidad_botella' => $request->cantidad_botella, 
         'cantidad_litros' => $request->cantidad_litros, 
         'sector_id' => $request->sector_id, 
-        'usuario_alta_id' => $request->usuario_alta, 
+        'usuario_alta_id' => $request->usuario_alta_id, 
+        'usuario_modifica_id' => $request->usuario_alta_id, 
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
     ]);    
 
 
-      return response()->json($turno, "200");  
+    $stock_id =    DB::table('produccion_stock')->insertGetId([
+        
+      'produccion_id' => $produccion_id, 
+      'fecha_ingreso' => $fecha_produccion, 
+      'cantidad_original' => $fecha_produccion,  
+      'cantidad_original' => $request->cantidad_botella, 
+      'cantidad_salida' => '0', 
+      'existencia' => $request->cantidad_botella, 
+      'usuario_alta_id' => $request->usuario_alta_id, 
+      'created_at' => date("Y-m-d H:i:s"),
+      'updated_at' => date("Y-m-d H:i:s")
+  ]);    
+
+      return response()->json($stock_id, "200");  
     }
 
 
@@ -190,6 +203,102 @@ public function getProduccionStockByDates(Request $request)
       ));
 
       return response()->json($res, "200");
+}
+
+/* -------------------------------------------------------------------------- */
+/*          CREO LA ORDEN DE PEDIDO Y AGREGO EL LISTADO DE PRODUCTOS          */
+/* -------------------------------------------------------------------------- */
+
+public function setOrdenPedido(Request $request)
+{
+    $tmp_fecha = str_replace('/', '-', $request->fecha);
+    $fecha =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+
+  $id =    DB::table('orden_pedido')->insertGetId([
+    
+    'fecha_pedido' => $request->fecha_pedido, 
+    'usuario_id' => $request->usuario_id,  
+    'estado' => 'ACTIVO',  
+    'created_at' => date("Y-m-d H:i:s"),
+    'updated_at' => date("Y-m-d H:i:s")
+]);    
+
+  $t = $request->articulo;
+
+  foreach ($t as $res) {
+    if($res["cantidad"] != 0){
+      DB::table('orden_pedido_articulos')->insertGetId([            
+        'orden_pedido_id' => $id,
+        'articulo_id' => $res["id"],          
+        'cantidad' => $res["cantidad"],       
+        'usuario_id' => $request->usuario_id,         
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")    
+    ]);      
+    }       
+  }
+ return response()->json($id, "200");  
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                  OBTENGO LAS ORDENES DE PEDIDO INCOMPLETAS                 */
+/* -------------------------------------------------------------------------- */
+
+public function getOrdenPedidoEstado(Request $request)
+  {
+    $estado = $request->input('estado');
+    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, estado, users.id as usuario_id, users.nombreyapellido FROM orden_pedido,users WHERE orden_pedido.usuario_id = users.id and estado = :estado ORDER BY fecha_pedido ASC
+    
+    "), array(                       
+          'estado' => $estado
+        ));
+
+        return response()->json($res, "200");
+  }
+
+/* -------------------------------------------------------------------------- */
+/*              OBTENGO LA PRODUCCION ASOCIADA A ORDEN DE PEDIDO              */
+/* -------------------------------------------------------------------------- */
+
+public function  getOrdenPedidoDetalleByEstado(Request $request)
+  {
+    $estado = $request->input('estado');
+    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido FROM `orden_pedido`, orden_pedido_articulos, articulo, users WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.estado = :estado ORDER BY fecha_pedido ASC
+    
+    "), array(                       
+          'estado' => $estado          
+        ));
+
+        return response()->json($res, "200");
+  }
+
+  public function getOrdenPedidoDetalleById(Request $request)
+  {
+    $id = $request->input('id');
+    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido FROM `orden_pedido`, orden_pedido_articulos, articulo, users WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.id = :id
+    
+    "), array(                       
+          'id' => $id          
+        ));
+
+        return response()->json($res, "200");
+  }
+
+/* -------------------------------------------------------------------------- */
+/*                   ACTUALIZAR EL ESTADO DE ORDEN DE PEDIDO                  */
+/* -------------------------------------------------------------------------- */
+
+public function updOrdenPedido(Request $request)
+{
+  
+  $res =  DB::table('orden_pedido')
+  ->where('id', $request->input('id'))
+  ->update([
+    'estado' => $request->input('estado'),   
+    'updated_at' => date("Y-m-d H:i:s")]);
+
+    return response()->json($res, "200");
 }
 
 }
