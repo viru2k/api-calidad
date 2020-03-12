@@ -264,7 +264,9 @@ public function getOrdenPedidoEstado(Request $request)
 public function  getOrdenPedidoDetalleByEstado(Request $request)
   {
     $estado = $request->input('estado');
-    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido FROM `orden_pedido`, orden_pedido_articulos, articulo, users WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.estado = :estado ORDER BY fecha_pedido ASC
+    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido 
+    FROM `orden_pedido`, orden_pedido_articulos, articulo, users 
+    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.estado = :estado ORDER BY fecha_pedido ASC
     
     "), array(                       
           'estado' => $estado          
@@ -276,7 +278,27 @@ public function  getOrdenPedidoDetalleByEstado(Request $request)
   public function getOrdenPedidoDetalleById(Request $request)
   {
     $id = $request->input('id');
-    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido FROM `orden_pedido`, orden_pedido_articulos, articulo, users WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.id = :id
+    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido 
+    FROM `orden_pedido`, orden_pedido_articulos, articulo, users 
+    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.id = :id
+    
+    "), array(                       
+          'id' => $id          
+        ));
+
+        return response()->json($res, "200");
+  }
+
+/* -------------------------------------------------------------------------- */
+/*     OBTENGO EL LISTADO DE PRODUCCION GENERADA PARA UNA ORDEN DE PEDIDO     */
+/* -------------------------------------------------------------------------- */
+
+  public function getProduccionByOrdenPedido(Request $request)
+  {
+    $id = $request->input('id');
+    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido, produccion.id as produccion_id, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, produccion_stock.fecha_egreso, produccion_stock.fecha_ingreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia, produccion_stock.id as produccion_stock_id
+    FROM `orden_pedido`, orden_pedido_articulos, articulo,produccion_stock,produccion, users 
+    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND produccion.orden_pedido_articulos_id = orden_pedido_articulos.id  AND  produccion_stock.produccion_id = produccion.id AND produccion_stock.usuario_alta_id = users.id AND orden_pedido.id  = :id
     
     "), array(                       
           'id' => $id          

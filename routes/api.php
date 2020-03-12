@@ -120,6 +120,8 @@ Route::name('produccion-consulta')->get('produccion/orden/pedido/by/id', 'Produc
 Route::name('produccion-consulta')->get('produccion/orden/pedido/by/estado', 'Produccion\ProduccionController@getOrdenPedidoDetalleByEstado');
 Route::name('produccion-consulta')->get('produccion/orden/pedido/estado/editar', 'Produccion\ProduccionController@updOrdenPedido');
 Route::name('produccion-consulta')->post('produccion/crear', 'Produccion\ProduccionController@setProduccion');
+Route::name('produccion-consulta')->get('produccion/asociar/orden/pedido/articulo', 'Produccion\ProduccionController@getProduccionByOrdenPedido');
+
 
 
 /** FILE MANAGER **/
