@@ -17,7 +17,7 @@ class ArticuloController extends ApiController
      */
     public function index()
     {
-      $res = DB::select( DB::raw("SELECT articulo.id ,articulo.descripcion , unidad.descripcion as unidad_descripcion, articulo.unidad_id FROM articulo, unidad WHERE articulo.unidad_id = unidad.id
+      $res = DB::select( DB::raw("SELECT articulo.id ,articulo.descripcion , unidad.descripcion as unidad_descripcion, articulo.unidad_id, botellas, pisos, pack, litros FROM articulo, unidad WHERE articulo.unidad_id = unidad.id
        "));
     
           return response()->json($res, "200");
@@ -36,7 +36,10 @@ class ArticuloController extends ApiController
         
         'descripcion' => $request->descripcion, 
         'unidad_id' => $request->unidad_id,        
-         
+        'botellas'=> $request->botellas,
+        'pisos'=> $request->pisos,
+        'pack'=> $request->pack,
+        'litros'=> $request->litros,
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
     ]);    
@@ -71,6 +74,10 @@ class ArticuloController extends ApiController
         ->update([
           'descripcion' => $request->input('descripcion'),
           'unidad_id' =>  $request->input('unidad_id'),   
+          'botellas' =>  $request->input('botellas'),   
+          'pisos' =>  $request->input('pisos'),   
+          'pack' =>  $request->input('pack'),   
+          'litros' =>  $request->input('litros'),   
           'updated_at' => date("Y-m-d H:i:s")]);
   
           return response()->json($res, "200");
@@ -91,7 +98,7 @@ class ArticuloController extends ApiController
     {
         $articulo_id = $request->input('articulo_id');
      
-      $res = DB::select( DB::raw("SELECT articulo_confeccion.id, articulo_confeccion.cantidad , articulo_confeccion.VOLUMEN, articulo_confeccion.unidad, articulo.id as articulo_id, articulo.descripcion as articulo_descripcion, insumo.descripcion as insumo_descripcion, insumo.id as insumo_id, unidad.descripcion as unidad_descripcion ,unidad.id as unidad_id  
+      $res = DB::select( DB::raw("SELECT articulo_confeccion.id, articulo_confeccion.cantidad , articulo_confeccion.VOLUMEN, articulo_confeccion.unidad, articulo.id as articulo_id, articulo.descripcion as articulo_descripcion , botellas, pisos, pack, litros,  insumo.descripcion as insumo_descripcion, insumo.id as insumo_id, unidad.descripcion as unidad_descripcion ,unidad.id as unidad_id  
       FROM articulo_confeccion, articulo, insumo, unidad 
       WHERE  articulo_confeccion.articulo_id = articulo.id AND articulo_confeccion.insumo_id = insumo.id AND insumo.unidad_id = unidad.id AND  articulo_confeccion.articulo_id = :articulo_id
        "), array(                       
@@ -143,3 +150,4 @@ class ArticuloController extends ApiController
       return response()->json($res, "200");
     }
 }
+

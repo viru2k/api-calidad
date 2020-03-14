@@ -122,6 +122,9 @@ Route::name('produccion-consulta')->get('produccion/orden/pedido/estado/editar',
 Route::name('produccion-consulta')->post('produccion/crear', 'Produccion\ProduccionController@setProduccion');
 Route::name('produccion-consulta')->get('produccion/asociar/orden/pedido/articulo', 'Produccion\ProduccionController@getProduccionByOrdenPedido'); 
 Route::name('produccion-consulta')->get('produccion/asociar/orden/pedido/articulo/todos', 'Produccion\ProduccionController@getProduccionByOrdenPedidoTodos');
+Route::name('produccion-consulta')->get('produccion/articulo/insumo', 'Produccion\ProduccionController@getInsumosByArticuloId');
+
+
 
 
 /** FILE MANAGER **/
