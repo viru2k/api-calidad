@@ -8,7 +8,7 @@ use App\models\Articulo;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\DB;
 
-class ProduccionController extends Controller
+class ProduccionController extends ApiController
 {
 /**
      * Display a listing of the resource.
@@ -36,7 +36,7 @@ class ProduccionController extends Controller
 /* -------------------------------------------------------------------------- */
 /*                             CREO LA PRODUCCION                             */
 /* -------------------------------------------------------------------------- */
-
+/* 
     public function setProduccion(Request $request)
     {
         $tmp_fecha = str_replace('/', '-', $request->fecha_produccion);
@@ -45,7 +45,7 @@ class ProduccionController extends Controller
 
       $produccion_id =    DB::table('produccion')->insertGetId([
         
-        'orden_pedido_articulos_id' => $request->orden_pedido_articulos_id,        
+        'orden_produccion_articulos_id' => $request->orden_produccion_articulos_id,        
         'articulo_id' => $request->articulo_id,         
         'fecha_produccion' => $fecha_produccion, 
         'unidad_id' => $request->unidad_id,        
@@ -73,7 +73,7 @@ class ProduccionController extends Controller
   ]);    
 
       return response()->json($stock_id, "200");  
-    }
+    } */
 
 
 /* -------------------------------------------------------------------------- */
@@ -116,7 +116,7 @@ class ProduccionController extends Controller
         'produccion_id' => $request->produccion_id, 
         'fecha_egreso' => $fecha_egreso, 
         'fecha_ingreso' => $fecha_ingreso, 
-        'fecha_pedido' => $fecha_pedido, 
+        'fecha_produccion' => $fecha_produccion, 
         'unidad_id' => $request->unidad_id,        
         'cantidad_original' => $request->cantidad_original, 
         'cantidad_salida' => $request->cantidad_salida, 
@@ -168,7 +168,7 @@ class ProduccionController extends Controller
         //$produccion_id =  $request->input('produccion_id');  
      
     
-      $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion,  botellas, pisos, pack, articulo.litros, produccion.orden_pedido, produccion.id as produccion_id, produccion_stock.id as produccion_stock_id, produccion.fecha_produccion, produccion.fecha_pedido, produccion.cantidad_botella, produccion.cantidad_litros, unidad.descripcion as unidad_descripcion, users.nombreyapellido, sector.nombre AS sector_nombre, produccion_stock.fecha_ingreso, produccion_stock.fecha_egreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia , produccion_movimiento.fecha_movimiento, produccion_movimiento.cantidad_salida as produccion_movimiento_cantidad_salida
+      $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion,  botellas, pisos, pack, articulo.litros, produccion.orden_produccion, produccion.id as produccion_id, produccion_stock.id as produccion_stock_id, produccion.fecha_produccion, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, unidad.descripcion as unidad_descripcion, users.nombreyapellido, sector.nombre AS sector_nombre, produccion_stock.fecha_ingreso, produccion_stock.fecha_egreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia , produccion_movimiento.fecha_movimiento, produccion_movimiento.cantidad_salida as produccion_movimiento_cantidad_salida
       FROM `produccion_stock`,produccion_movimiento,  produccion, unidad, users, sector, articulo 
       WHERE  produccion.id = produccion_stock.produccion_id AND produccion.unidad_id = unidad.id AND produccion_movimiento.produccion_stock_id = produccion_stock.id AND produccion_stock.usuario_alta_id = users.id AND sector.id = produccion.sector_id AND produccion.articulo_id = articulo.id AND produccion_stock.existencia > 0
       
@@ -193,7 +193,7 @@ public function getProduccionStockByDates(Request $request)
  
 
  
-  $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion,  botellas, pisos, pack, articulo.litros, produccion.orden_pedido, produccion.id as produccion_id, produccion_stock.id as produccion_stock_id, produccion.fecha_produccion, produccion.fecha_pedido, produccion.cantidad_botella, produccion.cantidad_litros, unidad.descripcion as unidad_descripcion, users.nombreyapellido, sector.nombre AS sector_nombre, produccion_stock.fecha_ingreso, produccion_stock.fecha_egreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia , produccion_movimiento.fecha_movimiento, produccion_movimiento.cantidad_salida as produccion_movimiento_cantidad_salida
+  $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion,  botellas, pisos, pack, articulo.litros, produccion.orden_produccion, produccion.id as produccion_id, produccion_stock.id as produccion_stock_id, produccion.fecha_produccion, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, unidad.descripcion as unidad_descripcion, users.nombreyapellido, sector.nombre AS sector_nombre, produccion_stock.fecha_ingreso, produccion_stock.fecha_egreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia , produccion_movimiento.fecha_movimiento, produccion_movimiento.cantidad_salida as produccion_movimiento_cantidad_salida
   FROM `produccion_stock`,produccion_movimiento,  produccion, unidad, users, sector, articulo 
   WHERE  produccion.id = produccion_stock.produccion_id AND produccion.unidad_id = unidad.id AND produccion_movimiento.produccion_stock_id = produccion_stock.id AND produccion_stock.usuario_alta_id = users.id AND sector.id = produccion.sector_id AND produccion.articulo_id = articulo.id AND produccion.fecha_produccion BETWEEN   :fecha_desde  and :fecha_hasta
   
@@ -206,17 +206,17 @@ public function getProduccionStockByDates(Request $request)
 }
 
 /* -------------------------------------------------------------------------- */
-/*          CREO LA ORDEN DE PEDIDO Y AGREGO EL LISTADO DE PRODUCTOS          */
+/*          CREO LA ORDEN DE produccion Y AGREGO EL LISTADO DE PRODUCTOS          */
 /* -------------------------------------------------------------------------- */
 
-public function setOrdenPedido(Request $request)
+public function setOrdenProduccion(Request $request)
 {
     $tmp_fecha = str_replace('/', '-', $request->fecha);
     $fecha =  date('Y-m-d H:i', strtotime($tmp_fecha));  
 
-  $id =    DB::table('orden_pedido')->insertGetId([
+  $id =    DB::table('orden_produccion')->insertGetId([
     
-    'fecha_pedido' => $request->fecha_pedido, 
+    'fecha_produccion' => $request->fecha_produccion, 
     'usuario_id' => $request->usuario_id,  
     'estado' => 'ACTIVO',  
     'created_at' => date("Y-m-d H:i:s"),
@@ -227,8 +227,8 @@ public function setOrdenPedido(Request $request)
 
   foreach ($t as $res) {
     if($res["cantidad"] != 0){
-      DB::table('orden_pedido_articulos')->insertGetId([            
-        'orden_pedido_id' => $id,
+      DB::table('orden_produccion_articulos')->insertGetId([            
+        'orden_produccion_id' => $id,
         'articulo_id' => $res["id"],          
         'cantidad' => $res["cantidad"],       
         'usuario_id' => $request->usuario_id,         
@@ -242,13 +242,14 @@ public function setOrdenPedido(Request $request)
 
 
 /* -------------------------------------------------------------------------- */
-/*                  OBTENGO LAS ORDENES DE PEDIDO INCOMPLETAS                 */
+/*                  OBTENGO LAS ORDENES DE PRODUCCION INCOMPLETAS                 */
 /* -------------------------------------------------------------------------- */
 
-public function getOrdenPedidoEstado(Request $request)
+public function getOrdenProduccionEstado(Request $request)
   {
     $estado = $request->input('estado');
-    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, estado, users.id as usuario_id, users.nombreyapellido FROM orden_pedido,users WHERE orden_pedido.usuario_id = users.id and estado = :estado ORDER BY fecha_pedido ASC
+    $res = DB::select( DB::raw("SELECT orden_produccion.id, fecha_produccion, estado, users.id as usuario_id, users.nombreyapellido  ,  sector.id as sector_id, sector.nombre as sector_nombre 
+    FROM orden_produccion,users, sector WHERE orden_produccion.usuario_id = users.id AND orden_produccion.sector_id = sector.id and estado = :estado ORDER BY fecha_produccion ASC
     
     "), array(                       
           'estado' => $estado
@@ -258,15 +259,15 @@ public function getOrdenPedidoEstado(Request $request)
   }
 
 /* -------------------------------------------------------------------------- */
-/*              OBTENGO LA PRODUCCION ASOCIADA A ORDEN DE PEDIDO              */
+/*              OBTENGO LA PRODUCCION ASOCIADA A ORDEN DE PRODUCCION              */
 /* -------------------------------------------------------------------------- */
 
-public function  getOrdenPedidoDetalleByEstado(Request $request)
+public function  getOrdenProduccionDetalleByEstado(Request $request)
   {
     $estado = $request->input('estado');
-    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id,  botellas, pisos, pack, articulo.litros, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido 
-    FROM `orden_pedido`, orden_pedido_articulos, articulo, users 
-    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.estado = :estado ORDER BY fecha_pedido ASC
+    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id,  botellas, pisos, pack, articulo.litros, orden_produccion.id, fecha_produccion, orden_produccion_articulos.id as orden_produccion_articulos_id, orden_produccion_articulos.cantidad, articulo.descripcion , users.nombreyapellido, sector.id as sector_id, sector.nombre as sector_nombre 
+    FROM `orden_produccion`, orden_produccion_articulos, articulo, users, sector 
+    WHERE orden_produccion_articulos.orden_produccion_id = orden_produccion.id AND orden_produccion_articulos.articulo_id = articulo.id AND orden_produccion.usuario_id = users.id AND orden_produccion.sector_id = sector.id AND  orden_produccion.estado = :estado ORDER BY fecha_produccion ASC
     
     "), array(                       
           'estado' => $estado          
@@ -275,12 +276,12 @@ public function  getOrdenPedidoDetalleByEstado(Request $request)
         return response()->json($res, "200");
   }
 
-  public function getOrdenPedidoDetalleById(Request $request)
+  public function getOrdenProduccionDetalleById(Request $request)
   {
     $id = $request->input('id');
-    $res = DB::select( DB::raw("SELECT orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido , botellas, pisos, pack, articulo.litros 
-    FROM `orden_pedido`, orden_pedido_articulos, articulo, users 
-    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND orden_pedido.usuario_id = users.id AND orden_pedido.id = :id
+    $res = DB::select( DB::raw("SELECT orden_produccion.id, fecha_produccion, orden_produccion_articulos.id as orden_produccion_articulos_id, orden_produccion_articulos.cantidad, articulo.descripcion , users.nombreyapellido , botellas, pisos, pack, articulo.litros , sector.id as sector_id, sector.nombre as sector_nombre
+    FROM `orden_produccion`, orden_produccion_articulos, articulo, users , sector
+    WHERE orden_produccion_articulos.orden_produccion_id = orden_produccion.id AND orden_produccion_articulos.articulo_id = articulo.id  AND orden_produccion.sector_id = sector.id AND orden_produccion.usuario_id = users.id AND  orden_produccion.id = :id
     
     "), array(                       
           'id' => $id          
@@ -290,17 +291,21 @@ public function  getOrdenPedidoDetalleByEstado(Request $request)
   }
 
 /* -------------------------------------------------------------------------- */
-/*     OBTENGO EL LISTADO DE PRODUCCION GENERADA PARA UNA ORDEN DE PEDIDO     */
+/*     OBTENGO EL LISTADO DE PRODUCCION GENERADA PARA UNA ORDEN DE produccion     */
 /* -------------------------------------------------------------------------- */
 
-  public function getProduccionByOrdenPedido(Request $request)
+  public function getProduccionByOrdenProduccion(Request $request)
   {
     $id = $request->input('id');
     $articulo_id = $request->input('articulo_id');
 
-    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id,  botellas, pisos, pack, articulo.litros, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido, produccion.id as produccion_id, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, produccion_stock.fecha_egreso, produccion_stock.fecha_ingreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia, produccion_stock.id as produccion_stock_id
-    FROM `orden_pedido`, orden_pedido_articulos, articulo,produccion_stock,produccion, users 
-    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND produccion.orden_pedido_articulos_id = orden_pedido_articulos.id  AND  produccion_stock.produccion_id = produccion.id AND produccion_stock.usuario_alta_id = users.id AND orden_pedido.id  = :id AND  produccion.articulo_id  = :articulo_id ORDER BY fecha_produccion DESC
+    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id,  botellas, pisos, pack, articulo.litros, orden_produccion.id, orden_produccion_articulos.id as orden_produccion_articulos_id, orden_produccion_articulos.cantidad, articulo.descripcion , users.nombreyapellido, produccion.id as produccion_id, 
+    produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, produccion_stock.fecha_egreso, produccion_stock.fecha_ingreso, produccion_stock.cantidad_original, 
+    produccion_stock.cantidad_salida, produccion_stock.existencia, produccion_stock.id as produccion_stock_id, sector.id as sector_id, sector.nombre as sector_nombre 
+    FROM `orden_produccion`, orden_produccion_articulos, articulo,produccion_stock,produccion, users , sector
+    WHERE orden_produccion_articulos.orden_produccion_id = orden_produccion.id AND orden_produccion_articulos.articulo_id = articulo.id AND produccion.orden_produccion_articulos_id = orden_produccion_articulos.id  
+    AND  produccion_stock.produccion_id = produccion.id AND produccion_stock.usuario_alta_id = users.id  AND orden_produccion.sector_id = sector.id
+    AND orden_produccion.id  = :id AND  produccion.articulo_id  = :articulo_id ORDER BY fecha_produccion DESC
     
     "), array(                       
           'id' => $id,
@@ -310,12 +315,16 @@ public function  getOrdenPedidoDetalleByEstado(Request $request)
         return response()->json($res, "200");
   }
 
-  public function getProduccionByOrdenPedidoTodos(Request $request)
+  public function getProduccionByOrdenProduccionTodos(Request $request)
   {
     $id = $request->input('id');
-    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id, botellas, pisos, pack, articulo.litros, orden_pedido.id, fecha_pedido, orden_pedido_articulos.id as orden_pedido_articulos_id, orden_pedido_articulos.cantidad, articulo.descripcion , users.nombreyapellido, produccion.id as produccion_id, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, produccion_stock.fecha_egreso, produccion_stock.fecha_ingreso, produccion_stock.cantidad_original, produccion_stock.cantidad_salida, produccion_stock.existencia, produccion_stock.id as produccion_stock_id
-    FROM `orden_pedido`, orden_pedido_articulos, articulo,produccion_stock,produccion, users 
-    WHERE orden_pedido_articulos.orden_pedido_id = orden_pedido.id AND orden_pedido_articulos.articulo_id = articulo.id AND produccion.orden_pedido_articulos_id = orden_pedido_articulos.id  AND  produccion_stock.produccion_id = produccion.id AND produccion_stock.usuario_alta_id = users.id AND orden_pedido.id  = :id ORDER BY fecha_produccion DESC
+    $res = DB::select( DB::raw("SELECT articulo.id as articulo_id, botellas, pisos, pack, articulo.litros, orden_produccion.id, orden_produccion_articulos.id as orden_produccion_articulos_id, orden_produccion_articulos.cantidad, articulo.descripcion ,
+     users.nombreyapellido, produccion.id as produccion_id, produccion.fecha_produccion, produccion.cantidad_botella, produccion.cantidad_litros, produccion_stock.fecha_egreso, produccion_stock.fecha_ingreso, produccion_stock.cantidad_original,
+     produccion_stock.cantidad_salida, produccion_stock.existencia, produccion_stock.id as produccion_stock_id, sector.id as sector_id, sector.nombre as sector_nombre 
+    FROM `orden_produccion`, orden_produccion_articulos, articulo,produccion_stock,produccion, users ,sector
+    WHERE orden_produccion_articulos.orden_produccion_id = orden_produccion.id AND orden_produccion_articulos.articulo_id = articulo.id AND produccion.orden_produccion_articulos_id = orden_produccion_articulos.id 
+    AND  produccion_stock.produccion_id = produccion.id AND orden_produccion.sector_id = sector.id
+    AND produccion_stock.usuario_alta_id = users.id  AND orden_produccion.id  = :id ORDER BY fecha_produccion DESC
     
     "), array(                       
           'id' => $id          
@@ -332,7 +341,9 @@ public function  getOrdenPedidoDetalleByEstado(Request $request)
 public function getInsumosByArticuloId(Request $request)
 {
   $articulo_id = $request->input('articulo_id');
-  $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion , botellas, pisos, pack, articulo.litros, articulo_confeccion.id,  articulo_confeccion.articulo_id, insumo_id, `cantidad`, `VOLUMEN`, `unidad`, insumo.descripcion as insumo_descripcion FROM `articulo_confeccion`, articulo, insumo WHERE articulo_confeccion.articulo_id = articulo.id AND insumo.id = articulo_confeccion.insumo_id  AND articulo.id   = :articulo_id
+  $res = DB::select( DB::raw("SELECT articulo.descripcion as articulo_descripcion , botellas, pisos, pack, articulo.litros, articulo_confeccion.id,  articulo_confeccion.articulo_id, articulo_confeccion.cantidad as  articulo_confeccion_cantidad , insumo_stock.insumo_id, insumo_stock.cantidad, insumo_stock.cantidad_usada, insumo_stock.cantidad_existente, insumo_stock.fecha_ingreso, insumo_stock.fecha_finalizado, articulo_confeccion.cantidad as articulo_confeccion_cantidad,   insumo.descripcion as insumo_descripcion 
+  FROM `articulo_confeccion`, articulo, insumo, insumo_stock 
+  WHERE articulo_confeccion.articulo_id = articulo.id AND insumo.id = articulo_confeccion.insumo_id AND insumo.id = insumo_stock.insumo_id  AND articulo.id    = :articulo_id
   
   "), array(                       
         'articulo_id' => $articulo_id          
@@ -341,15 +352,28 @@ public function getInsumosByArticuloId(Request $request)
       return response()->json($res, "200");
 }
   
+/* -------------------------------------------------------------------------- */
+/*                        OBTENCION DE LA TABLA SECTOR                        */
+/* -------------------------------------------------------------------------- */
+
+public function getSectorProduccion()
+{  
+  $res = DB::select( DB::raw("SELECT `id`, `nombre`, `empleados_produccion` FROM `sector`
+  "));
+
+      return response()->json($res, "200");
+}
+
+
 
 /* -------------------------------------------------------------------------- */
-/*                   ACTUALIZAR EL ESTADO DE ORDEN DE PEDIDO                  */
+/*                   ACTUALIZAR EL ESTADO DE ORDEN DE produccion              */
 /* -------------------------------------------------------------------------- */
 
-public function updOrdenPedido(Request $request)
+public function updOrdenProduccion(Request $request)
 {
   
-  $res =  DB::table('orden_pedido')
+  $res =  DB::table('orden_produccion')
   ->where('id', $request->input('id'))
   ->update([
     'estado' => $request->input('estado'),   
@@ -357,5 +381,120 @@ public function updOrdenPedido(Request $request)
 
     return response()->json($res, "200");
 }
+
+
+
+/* ------------------------ ACTUALIZADO 20 -04- 2020 ------------------------ */
+
+
+/* -------------------------------------------------------------------------- */
+/*                             CREO LA PRODUCCION                             */
+/* -------------------------------------------------------------------------- */
+
+
+public function setProduccion(Request $request){
+
+  $tmp_fecha = str_replace('/', '-', $request->fecha_creacion);
+  $fecha_creacion =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+
+  $id =    DB::table('orden_produccion')->insertGetId([    
+    'fecha_creacion' => $request->fecha_creacion,        
+    'usuario_modifica_id' => $request->usuario_modifica_id, 
+    'usuario_modifica_id' => $request->descripcion,         
+    'estado' => 'ACTIVO',   
+    'created_at' => date("Y-m-d H:i:s"),
+    'updated_at' => date("Y-m-d H:i:s")
+]);    
+  
+// guardo el request en una variable para iterar
+$t = $request->articulo;
+
+foreach ($t as $res) {
+  if($res["cantidad"] != 0){
+    DB::table('produccion_proceso')->insertGetId([            
+      'orden_produccion_id' => $id,
+      'articulo_id' => $res["id"],          
+      'cantidad_solicitada' => $res["cantidad_solicitada"],       
+      'cantidad_usada' =>  0,  
+      'cantidad_existente' => $res["cantidad_solicitada"],  
+      'usuario_modifica_id' => $request->usuario_modifica_id,         
+      'created_at' => date("Y-m-d H:i:s"),
+      'updated_at' => date("Y-m-d H:i:s")    
+  ]);      
+  }       
+}
+return response()->json($id, "200");  
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                 OBTENGO EL LISTADO DE INSUMOS POR ARTICULO                 */
+/* -------------------------------------------------------------------------- */
+
+public function produccionArmadoDeProductoById(Request $request)
+{
+    $articulo_id = $request->input('articulo_id');
+ 
+  $res = DB::select( DB::raw("SELECT articulo.id ,articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido, stock_armado_producto.cantidad ,stock_armado_producto.insumo_id, insumo.nombre as insumo_nombre, insumo.descripcion as insumo_descripcion , stock_armado_producto.estado AS stock_armado_producto_estado
+  FROM articulo_propiedades, articulo, unidad, users, stock_armado_producto, insumo 
+  WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id AND stock_armado_producto.articulo_id = articulo.id AND stock_armado_producto.insumo_id = insumo.id AND articulo.id  = :articulo_id
+   "), array(                       
+    'articulo_id' => $articulo_id
+  ));
+
+      return response()->json($res, "200");
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/*                INSERTO UN INSUMO A LA CONFECCION DE ARTICULO               */
+/* -------------------------------------------------------------------------- */
+
+public function setStockArmadoProducto(Request $request){
+
+  $id =    DB::table('stock_armado_producto')->insertGetId([
+    'articulo_id' => $request->articulo_id, 
+    'insumo_id' => $request->insumo_id,        
+    'cantidad' => $request->cantidad, 
+    'usuario_modifica_id' => $request->usuario_modifica_id,         
+    'estado' => 'ACTIVO',   
+    'created_at' => date("Y-m-d H:i:s"),
+    'updated_at' => date("Y-m-d H:i:s")
+]);    
+  return response()->json($id, "200");  
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       ACTUALIZO EL INSUMO EN EL STOCK                      */
+/* -------------------------------------------------------------------------- */
+
+public function updateStockArmadoProducto(Request $request, $id){
+  $res =  DB::table('stock_armado_producto')
+  ->where('id', $id)
+  ->update([
+    'articulo_id' => $request->input('articulo_id'),
+    'insumo_id' => $request->input('insumo_id'),
+    'cantidad' => $request->input('cantidad'),
+    'usuario_modifica_id' => $request->input('usuario_modifica_id'),           
+    'estado' => $request->input('estado'),  
+    'updated_at' => date("Y-m-d H:i:s")]);
+
+    return response()->json($res, "200");
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            BORRAR UNA ASOCIACION                           */
+/* -------------------------------------------------------------------------- */
+
+public function delStockArmadoProducto(Request $request){
+  $id = $request->input('id');
+ $res =  DB::table('stock_armado_producto')->delete($id);
+  
+ // echo '¡ass';
+  return response()->json($res, "200");
+}
+
+
 
 }

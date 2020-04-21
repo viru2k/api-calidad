@@ -30,15 +30,13 @@ class InsumoController extends ApiController
     public function store(Request $request)
     {
       $id =    DB::table('insumo')->insertGetId([
-        
-        'descripcion' => $request->descripcion, 
-        'unidad_id' => $request->unidad_id,        
+        'nombre' => $request->nombre, 
+        'descripcion' => $request->descripcion,        
+        'unidad_id' => $request->unidad_id, 
+        'usuario_modifica_id' => $request->usuario_modifica_id,             
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
     ]);    
-
-
-      return response()->json($id, "200");  
     }
 
 /* -------------------------------------------------------------------------- */
@@ -51,10 +49,12 @@ class InsumoController extends ApiController
       $res =  DB::table('insumo')
       ->where('id', $id)
       ->update([
+        'nombre' => $request->input('nombre'),
         'descripcion' => $request->input('descripcion'),
         'unidad_id' => $request->input('unidad_id'),
+        'usuario_modifica_id' => $request->input('usuario_modifica_id'),               
         'updated_at' => date("Y-m-d H:i:s")]);
-
+    
         return response()->json($res, "200");
     }
 
