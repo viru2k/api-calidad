@@ -248,8 +248,8 @@ public function setOrdenProduccion(Request $request)
 public function getOrdenProduccionEstado(Request $request)
   {
     $estado = $request->input('estado');
-    $res = DB::select( DB::raw("SELECT orden_produccion.id, fecha_produccion, estado, users.id as usuario_id, users.nombreyapellido  ,  sector.id as sector_id, sector.nombre as sector_nombre 
-    FROM orden_produccion,users, sector WHERE orden_produccion.usuario_id = users.id AND orden_produccion.sector_id = sector.id and estado = :estado ORDER BY fecha_produccion ASC
+    $res = DB::select( DB::raw("SELECT orden_produccion.id, orden_produccion.fecha_creacion, orden_produccion.descripcion, orden_produccion.observacion,  orden_produccion.estado, orden_produccion.fecha_desde, orden_produccion.fecha_hasta, users.id as usuario_id, users.nombreyapellido   
+    FROM orden_produccion,users WHERE orden_produccion.usuario_modifica_id = users.id  ORDER BY fecha_creacion DESC
     
     "), array(                       
           'estado' => $estado
@@ -376,7 +376,8 @@ public function updOrdenProduccion(Request $request)
   $res =  DB::table('orden_produccion')
   ->where('id', $request->input('id'))
   ->update([
-    'estado' => $request->input('estado'),   
+    'usuario_modifica_id' => $request->input('usuario_modifica_id'),   
+    'estado' => $request->input('estado'),       
     'updated_at' => date("Y-m-d H:i:s")]);
 
     return response()->json($res, "200");
@@ -395,29 +396,41 @@ public function updOrdenProduccion(Request $request)
 public function setProduccion(Request $request){
 
   $tmp_fecha = str_replace('/', '-', $request->fecha_creacion);
-  $fecha_creacion =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+  $fecha_creacion =  date('Y-m-d', strtotime($tmp_fecha));  
+
+  $tmp_fecha = str_replace('/', '-', $request->fecha_desde);
+  $fecha_desde =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+
+  $tmp_fecha = str_replace('/', '-', $request->fecha_hasta);
+  $fecha_hasta =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+  
 
   $id =    DB::table('orden_produccion')->insertGetId([    
-    'fecha_creacion' => $request->fecha_creacion,        
-    'usuario_modifica_id' => $request->usuario_modifica_id, 
-    'usuario_modifica_id' => $request->descripcion,         
+    'fecha_creacion' => $fecha_creacion,        
+    'usuario_modifica_id' => $request->usuario_modifica_id , 
+    'descripcion' => $request->descripcion,         
+    'observacion' => $request->observacion,   
     'estado' => 'ACTIVO',   
-    'created_at' => date("Y-m-d H:i:s"),
-    'updated_at' => date("Y-m-d H:i:s")
+    'fecha_desde' => $fecha_desde,  
+    'fecha_hasta' => $fecha_hasta
 ]);    
   
 // guardo el request en una variable para iterar
-$t = $request->articulo;
+$t = $request->OrdenProduccionDetalle;
 
 foreach ($t as $res) {
+  $tmp_fecha = str_replace('/', '-',  $res["fecha_produccion"]);
+  $fecha_produccion =  date('Y-m-d H:i', strtotime($tmp_fecha));  
   if($res["cantidad"] != 0){
-    DB::table('produccion_proceso')->insertGetId([            
+    DB::table('orden_produccion_detalle')->insertGetId([            
       'orden_produccion_id' => $id,
-      'articulo_id' => $res["id"],          
+      'articulo_id' => $res["id"],      
+      'fecha_produccion' => $fecha_produccion,    
       'cantidad_solicitada' => $res["cantidad_solicitada"],       
       'cantidad_usada' =>  0,  
       'cantidad_existente' => $res["cantidad_solicitada"],  
-      'usuario_modifica_id' => $request->usuario_modifica_id,         
+      'usuario_modifica_id' => $request->usuario_modifica_id,  
+      'estado'        => 'ACTIVO',
       'created_at' => date("Y-m-d H:i:s"),
       'updated_at' => date("Y-m-d H:i:s")    
   ]);      
@@ -471,7 +484,8 @@ public function setStockArmadoProducto(Request $request){
 
 public function updateStockArmadoProducto(Request $request, $id){
   $res =  DB::table('stock_armado_producto')
-  ->where('id', $id)
+  ->where('insumo_id', $request->input('insumo_id'))
+  ->where('articulo_id', $request->input('articulo_id'))
   ->update([
     'articulo_id' => $request->input('articulo_id'),
     'insumo_id' => $request->input('insumo_id'),
@@ -495,6 +509,20 @@ public function delStockArmadoProducto(Request $request){
   return response()->json($res, "200");
 }
 
+/* -------------------------------------------------------------------------- */
+/*        OBTENGO EL LISTADO DE PRODUCTOS DE UNA PRODUCCION PLANIFICADA       */
+/* -------------------------------------------------------------------------- */
 
+public function produccionDetalleByProduccionId(Request $request)
+{
+    $produccion_id = $request->input('produccion_id');
+ 
+  $res = DB::select( DB::raw("SELECT orden_produccion.id, `fecha_creacion`, orden_produccion_detalle.usuario_modifica_id, orden_produccion.descripcion, orden_produccion.observacion, orden_produccion_detalle.estado, `fecha_desde`, `fecha_hasta`, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada, orden_produccion_detalle.cantidad_usada, orden_produccion_detalle.cantidad_existente, orden_produccion_detalle.estado AS orden_produccion_detall_estado ,articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen FROM `orden_produccion`, orden_produccion_detalle, articulo, articulo_propiedades WHERE orden_produccion.id = orden_produccion_detalle.orden_produccion_id AND orden_produccion_detalle.articulo_id = articulo.id AND articulo.id = articulo_propiedades.articulo_id and orden_produccion.id = :produccion_id
+   "), array(                       
+    'produccion_id' => $produccion_id
+  ));
+
+      return response()->json($res, "200");
+}
 
 }

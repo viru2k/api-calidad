@@ -27,13 +27,24 @@ class ArticuloController extends ApiController
 /*                             GUARDO UN ARTICULO                             */
 /* -------------------------------------------------------------------------- */
     
-    public function store(Request $request)
+    public function postArticulo(Request $request)
     {
        
-      $id =    DB::table('articulo')->insertGetId([
-        'nombre' => $request->descripnombrecion, 
+      $articulo_id =    DB::table('articulo')->insertGetId([
+        'nombre' => $request->nombre, 
         'descripcion' => $request->descripcion, 
         'unidad_id' => $request->unidad_id,        
+        'usuario_modifica_id'=> $request->usuario_modifica_id,        
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);    
+
+      $id =    DB::table('articulo_propiedades')->insertGetId([
+        'articulo_id' => $articulo_id,
+        'unidades' => $request->unidades, 
+        'pallet_pisos' => $request->pallet_pisos, 
+        'pallet_pack' => $request->pallet_pack,        
+        'volumen' => $request->volumen,  
         'usuario_modifica_id'=> $request->usuario_modifica_id,        
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
@@ -47,9 +58,9 @@ class ArticuloController extends ApiController
 /*                            ACTUALIZO UN ARTICULO                           */
 /* -------------------------------------------------------------------------- */
 
-public function update(Request $request, $id)
+public function putArticulo(Request $request, $id)
 {
-   
+
     $res =  DB::table('articulo')
     ->where('id', $id)
     ->update([
@@ -59,6 +70,15 @@ public function update(Request $request, $id)
       'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),           
       'updated_at' => date("Y-m-d H:i:s")]);
 
+    $res =  DB::table('articulo_propiedades')
+    ->where('articulo_id', $id)
+    ->update([
+      'unidades' => $request->input('unidades'),
+      'pallet_pisos' => $request->input('pallet_pisos'),
+      'pallet_pack' =>  $request->input('pallet_pack'),   
+      'volumen' =>  $request->input('volumen'),   
+      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),           
+      'updated_at' => date("Y-m-d H:i:s")]);
       return response()->json($res, "200");
 }
 
@@ -70,7 +90,8 @@ public function  getArticulo(Request $request)
 {
     $articulo_id = $request->input('articulo_id');
  
-  $res = DB::select( DB::raw("SELECT articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido 
+  $res = DB::select( DB::raw("SELECT articulo.id, articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, 
+                  articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido , unidad.id as unidad_id
                   FROM articulo_propiedades, articulo, unidad, users 
                   WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id AND articulo.id = :articulo_id
    "), array(                       
@@ -89,7 +110,8 @@ public function  getArticulo(Request $request)
 public function  getArticulos(Request $request)
 {    
  
-  $res = DB::select( DB::raw("SELECT articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido 
+  $res = DB::select( DB::raw("SELECT articulo.id,  articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos,
+                             articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido ,  unidad.id as unidad_id
                   FROM articulo_propiedades, articulo, unidad, users 
                   WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id
    "));

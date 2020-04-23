@@ -15,7 +15,7 @@ class InsumoController extends ApiController
      */
     public function index()
     {
-      $res = DB::select( DB::raw("SELECT insumo.id, insumo.descripcion, unidad.descripcion as unidad_descripcion, unidad.id as unidad_id FROM insumo, unidad WHERE insumo.unidad_id = unidad.id"));
+      $res = DB::select( DB::raw("SELECT insumo.id, insumo.nombre,  insumo.descripcion, insumo.usuario_modifica_id ,unidad.descripcion as unidad_descripcion, unidad.id as unidad_id FROM insumo, unidad WHERE insumo.unidad_id = unidad.id"));
    
         return response()->json($res, "200");
    
@@ -29,6 +29,7 @@ class InsumoController extends ApiController
 
     public function store(Request $request)
     {
+      
       $id =    DB::table('insumo')->insertGetId([
         'nombre' => $request->nombre, 
         'descripcion' => $request->descripcion,        
