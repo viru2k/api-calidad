@@ -448,7 +448,7 @@ public function produccionArmadoDeProductoById(Request $request)
 {
     $articulo_id = $request->input('articulo_id');
  
-  $res = DB::select( DB::raw("SELECT articulo.id ,articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido, stock_armado_producto.cantidad ,stock_armado_producto.insumo_id, insumo.nombre as insumo_nombre, insumo.descripcion as insumo_descripcion , stock_armado_producto.estado AS stock_armado_producto_estado
+  $res = DB::select( DB::raw("SELECT stock_armado_producto.id AS stock_armado_producto_id, articulo.id ,articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido, stock_armado_producto.cantidad ,stock_armado_producto.insumo_id, insumo.nombre as insumo_nombre, insumo.descripcion as insumo_descripcion , stock_armado_producto.estado AS stock_armado_producto_estado
   FROM articulo_propiedades, articulo, unidad, users, stock_armado_producto, insumo 
   WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id AND stock_armado_producto.articulo_id = articulo.id AND stock_armado_producto.insumo_id = insumo.id AND articulo.id  = :articulo_id
    "), array(                       
@@ -503,9 +503,7 @@ public function updateStockArmadoProducto(Request $request, $id){
 
 public function delStockArmadoProducto(Request $request){
   $id = $request->input('id');
- $res =  DB::table('stock_armado_producto')->delete($id);
-  
- // echo '¡ass';
+  $res =  DB::table('stock_armado_producto')->delete($id);
   return response()->json($res, "200");
 }
 
@@ -517,12 +515,97 @@ public function produccionDetalleByProduccionId(Request $request)
 {
     $produccion_id = $request->input('produccion_id');
  
-  $res = DB::select( DB::raw("SELECT orden_produccion.id, `fecha_creacion`, orden_produccion_detalle.usuario_modifica_id, orden_produccion.descripcion, orden_produccion.observacion, orden_produccion_detalle.estado, `fecha_desde`, `fecha_hasta`, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada, orden_produccion_detalle.cantidad_usada, orden_produccion_detalle.cantidad_existente, orden_produccion_detalle.estado AS orden_produccion_detall_estado ,articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen FROM `orden_produccion`, orden_produccion_detalle, articulo, articulo_propiedades WHERE orden_produccion.id = orden_produccion_detalle.orden_produccion_id AND orden_produccion_detalle.articulo_id = articulo.id AND articulo.id = articulo_propiedades.articulo_id and orden_produccion.id = :produccion_id
+  $res = DB::select( DB::raw("SELECT orden_produccion.id, fecha_creacion, orden_produccion_detalle.usuario_modifica_id, orden_produccion.descripcion, orden_produccion.observacion, orden_produccion_detalle.estado, `fecha_desde`, `fecha_hasta`, 
+  orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.id as orden_produccion_detalle_id ,orden_produccion_detalle.cantidad_solicitada, orden_produccion_detalle.cantidad_usada, orden_produccion_detalle.cantidad_existente, orden_produccion_detalle.estado AS orden_produccion_detall_estado ,
+  articulo.id as articulo_id, articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.volumen 
+  FROM orden_produccion, orden_produccion_detalle, articulo, articulo_propiedades 
+  WHERE orden_produccion.id = orden_produccion_detalle.orden_produccion_id AND orden_produccion_detalle.articulo_id = articulo.id AND articulo.id = articulo_propiedades.articulo_id and orden_produccion.id = :produccion_id
    "), array(                       
     'produccion_id' => $produccion_id
   ));
 
       return response()->json($res, "200");
 }
+
+/* -------------------------------------------------------------------------- */
+/*                            PROCESO DE PRODUCCION                           */
+/* -------------------------------------------------------------------------- */
+
+
+public function getProduccionProcesoByOrdenProduccionDetalleId(Request $request)
+{
+    $orden_produccion_detalle_id = $request->input('orden_produccion_detalle_id');
+ 
+    try {
+      $res = DB::select( DB::raw("SELECT produccion_proceso.id, `orden_produccion_detalle_id`, produccion_proceso.articulo_id, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_pendiente, `cantidad_producida`, produccion_proceso.usuario_modifica_id, `maquina_id`, `hora_fin`, `hora_inicio`, produccion_proceso.estado, orden_produccion_detalle.id as orden_produccion_detalle_id, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada as  orden_produccion_detalle_cantidad_solicitada, orden_produccion_detalle.cantidad_usada AS orden_produccion_detalle_cantidad_usada, orden_produccion_detalle.cantidad_existente AS orden_produccion_detalle_cantidad_existente, articulo.nombre, maquina.maquina_nombre  
+  FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo, maquina 
+  WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id  AND orden_produccion_detalle_id = :orden_produccion_detalle_id
+   "), array(                       
+    'orden_produccion_detalle_id' => $orden_produccion_detalle_id
+  ));
+    } catch (\Throwable $th) {
+      return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
+    }
+
+
+      return response()->json($res, "200");
+}
+
+
+public function setProduccionProceso(Request $request){
+
+  $tmp_fecha = str_replace('/', '-',  $request->hora_inicio);
+  $fecha_desde =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
+
+  
+    $tmp_fecha = str_replace('/', '-',  $request->fecha_hasta);
+    $fecha_hasta =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
+
+
+  $id =    DB::table('produccion_proceso')->insertGetId([
+    'orden_produccion_detalle_id' => $request->orden_produccion_detalle_id, 
+    'articulo_id' => $request->articulo_id,        
+    'cantidad_solicitada' => $request->cantidad_solicitada, 
+    'cantidad_usada' => $request->cantidad_usada,         
+    'cantidad_pendiente' => $request->cantidad_pendiente,  
+    'cantidad_producida' => $request->cantidad_producida,  
+    'usuario_modifica_id' => $request->usuario_modifica_id,  
+    'maquina_id' => $request->maquina_id,  
+    'hora_inicio' =>  $request->hora_inicio,  
+    'hora_fin' =>  $request->hora_fin,
+    'estado' => $request->estado,      
+    'created_at' => date("Y-m-d H:i:s"),
+    'updated_at' => date("Y-m-d H:i:s")
+]);   
+
+if($id !== 0) {
+  $res =  DB::table('orden_produccion_detalle')
+  ->where('id', $request->input('orden_produccion_detalle_id'))  
+  ->update([
+    'cantidad_usada' => $request->cantidad_usada,
+    'cantidad_existente' =>  $request->cantidad_pendiente,
+    'usuario_modifica_id' => $request->usuario_modifica_id,             
+    'updated_at' => date("Y-m-d H:i:s")]);
+}
+  return response()->json($id, "200");  
+}
+
+
+
+public function updProduccionProceso(Request $request, $id){
+  $res =  DB::table('produccion_proceso')
+  ->where('id', $request->input('insumo_id'))  
+  ->update([
+    'articulo_id' => $request->input('articulo_id'),
+    'insumo_id' => $request->input('insumo_id'),
+    'cantidad' => $request->input('cantidad'),
+    'usuario_modifica_id' => $request->input('usuario_modifica_id'),           
+    'estado' => $request->input('estado'),  
+    'updated_at' => date("Y-m-d H:i:s")]);
+
+    return response()->json($res, "200");
+}
+
+
 
 }

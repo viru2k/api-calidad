@@ -83,4 +83,86 @@ class SectorController extends ApiController
     {
         //
     }
+
+
+    public function getGrupoByIdGrupo(Request $request)
+    {
+        $grupo_trabajo_id = $request->input('grupo_trabajo_id');
+    
+        try {
+        $res = DB::select( DB::raw("SELECT grupo.grupo_nombre, users.email, users.nombreyapellido , grupo.id , grupo_trabajo.id as grupo_trabajo_id, users.id usuario_id  
+        FROM grupo , grupo_trabajo, users 
+        WHERE grupo.id = grupo_trabajo.grupo_id AND grupo_trabajo.usuario_id = users.id AND grupo.id = :grupo_id ORDER BY  users.nombreyapellido  ASC
+         "), array(                       
+        'grupo_id' => $grupo_trabajo_id
+        ));
+        } catch (\Throwable $th) {
+        return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
+        }
+      return response()->json($res, "200");
+}
+
+
+public function getGrupo(Request $request)
+{
+    $grupo_trabajo_id = $request->input('grupo_trabajo_id');
+
+    try {
+    $res = DB::select( DB::raw("SELECT grupo.grupo_nombre, grupo.id   FROM grupo 
+     "));
+    } catch (\Throwable $th) {
+    return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
+    }
+  return response()->json($res, "200");
+}
+
+
+    
+public function setGrupo(Request $request){
+
+    $id =    DB::table('grupo')->insertGetId([
+      'grupo_nombre' => $request->grupo_nombre 
+  ]);   
+    return response()->json($id, "200");  
+}
+
+public function setGrupoTrabajo(Request $request){
+
+    $id =    DB::table('grupo_trabajo')->insertGetId([
+      'usuario_id' => $request->usuario_id, 
+      'grupo_id' => $request->grupo_id 
+  ]);   
+    return response()->json($id, "200");  
+}
+
+
+public function updGrupo(Request $request, $id){
+    $res =  DB::table('grupo')
+    ->where('id', $request->input('id'))  
+    ->update([
+      'grupo_nombre' => $request->input('grupo_nombre')
+     ]);
+  
+      return response()->json($res, "200");
+  }
+
+  
+public function updGrupoTrabajo(Request $request, $id){
+    $res =  DB::table('grupo_trabajo')
+    ->where('id', $request->input('id'))  
+    ->update([
+      'usuario_id' => $request->input('usuario_id'),
+      'grupo_id' => $request->input('grupo_id')
+      ]);
+  
+      return response()->json($res, "200");
+  }
+
+
+  public function delGrupoTrabajo(Request $request){
+    $id = $request->input('id');
+    $res =  DB::table('grupo_trabajo')->delete($id);
+    return response()->json($res, "200");
+  }
+
 }

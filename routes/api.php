@@ -47,6 +47,7 @@ Route::resource('unidad', 'Unidad\UnidadController');
 Route::resource('produccion', 'Produccion\ProduccionController'); 
 Route::resource('calidad', 'Calidad\CalidadController'); 
 Route::resource('insumos', 'Insumos\InsumoController'); 
+Route::resource('maquina', 'Produccion\MaquinaController'); 
 
 /* -------------------------------------------------------------------------- */
 /*                             RUTAS DE PRODUCCION                            */
@@ -66,7 +67,18 @@ Route::name('produccion')->put('produccion/{id}', 'Produccion\ProduccionControll
 Route::name('articulo')->post('articulos',         'Articulos\ArticuloController@postArticulo');
 Route::name('articulo')->put('articulos/{id}',     'Articulos\ArticuloController@putArticulo'); 
 
+/* -------------------------------------------------------------------------- */
+/*                          RUTA DE GRUPO DE TRABAJO                          */
+/* -------------------------------------------------------------------------- */
 
+Route::name('produccion')->post('grupo', 'Sector\SectorController@setGrupo');
+Route::name('produccion')->get('grupo', 'Sector\SectorController@getGrupo');
+Route::name('produccion')->put('grupo/{id}', 'Sector\SectorController@updGrupo'); 
+
+Route::name('produccion')->post('grupo/usuario', 'Sector\SectorController@setGrupoTrabajo');
+Route::name('produccion')->get('grupo/usuario/', 'Sector\SectorController@getGrupoByIdGrupo');
+Route::name('produccion')->put('grupo/usuario/{id}', 'Sector\SectorController@updGrupoTrabajo'); 
+Route::name('produccion')->get('grupo/usuario/borrar', 'Sector\SectorController@delGrupoTrabajo');
 
 /* -------------------------------------------------------------------------- */
 /*                              RUTAS DE ARTICULO CONFECCION                  */
@@ -120,6 +132,9 @@ Route::name('produccion-consulta')->post('produccion/producto/confeccion', 'Prod
 Route::name('produccion-consulta')->get('produccion/producto/confeccion/eliminar', 'Produccion\ProduccionController@delStockArmadoProducto');
 Route::name('produccion-consulta')->get('produccion/confeccion/borrar', 'Produccion\ProduccionController@delStockArmadoProducto');
 
+/* --------------------------- PRODUCCION PROCESO --------------------------- */
+Route::name('produccion-consulta')->post('produccion/proceso/crear', 'Produccion\ProduccionController@setProduccionProceso');
+Route::name('produccion-consulta')->put('produccion/proceso/modificar/{id}', 'Produccion\ProduccionController@updProduccionProceso'); 
 
 /* -------------------------------------------------------------------------- */
 /*                            PENDIENTES DE VALIDAR                           */
@@ -140,6 +155,7 @@ Route::name('produccion-consulta')->get('produccion/asociar/orden/produccion/art
 Route::name('produccion-consulta')->get('produccion/asociar/orden/produccion/articulo/todos', 'Produccion\ProduccionController@getProduccionByOrdenProduccionTodos');
 Route::name('produccion-consulta')->get('produccion/articulo/insumo', 'Produccion\ProduccionController@getInsumosByArticuloId');
 Route::name('produccion-consulta')->get('produccion/detalle/by/produccion/id', 'Produccion\ProduccionController@produccionDetalleByProduccionId');
+Route::name('produccion-consulta')->get('produccion/proceso/by/detalle/id', 'Produccion\ProduccionController@getProduccionProcesoByOrdenProduccionDetalleId');
 
 
 

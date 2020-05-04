@@ -100,6 +100,7 @@ class UserController extends ApiController
      ->select(
         'users.id',
         'users.name',
+        'users.admin',
         'users.nombreyapellido',
         'users.email',
         'modulo.id as modulo_id',
@@ -201,7 +202,7 @@ class UserController extends ApiController
             'email' => $request["email"],
             'password' => '$2y$10$qC.hjJ7O6Mm9qd5rWDqgmef7GgF7tIWPQuMFK5EG06hHJGET8Y8wa',
             'verification_token'=> '1',
-            'admin' => 1,
+            'admin' => $request["admin"],
             'puede_notificar'=> 'SI',
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s")    
@@ -214,18 +215,20 @@ class UserController extends ApiController
 
     public function EditarUsuario(Request $request, $id)
     {
-      /*   $update = DB::table('operacion_cobro_practica')         
+        $update = DB::table('users')         
         ->where('id', $id)->limit(1) 
         ->update( [            
-         'nombreyapellido' =>$request->input('es_habilitado')
+         'name' =>$request->input('name'),
+         'nombreyapellido' =>$request->input('nombreyapellido'),
+         'email' =>$request->input('email'),
+         'admin' =>$request->input('admin'),
+         'updated_at' => date("Y-m-d H:i:s")  
           ]);  
-        
+          return response()->json($update, 201);
+        } 
 
-        } */
-
-        return response()->json($horario, 201);
+       
     
-    }
 
     public function EditarUsuarioPassword(Request $request,$id )
     {
@@ -236,7 +239,7 @@ class UserController extends ApiController
            'id' => $id
        ));
 
-   $password =$request->new_password;
+   $password = $request->input('password');
    $ret_password=bcrypt($password);
 
        $update = DB::table('users')->limit(1) 
