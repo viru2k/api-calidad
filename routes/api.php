@@ -150,12 +150,15 @@ Route::name('produccion-consulta')->get('produccion/orden/produccion/estado', 'P
 Route::name('produccion-consulta')->get('produccion/orden/produccion/by/id', 'Produccion\ProduccionController@getOrdenProduccionDetalleById');
 Route::name('produccion-consulta')->get('produccion/orden/produccion/by/estado', 'Produccion\ProduccionController@getOrdenProduccionDetalleByEstado');
 Route::name('produccion-consulta')->get('produccion/orden/produccion/estado/editar', 'Produccion\ProduccionController@updOrdenProduccion');
-Route::name('produccion-consulta')->post('produccion/crear', 'Produccion\ProduccionController@setProduccion');
+Route::name('produccion-consulta')->post('produccion/crear', 'Produccion\ProduccionController@setProduccion'); 
+Route::name('produccion-consulta')->put('produccion/estado/{id}', 'Produccion\ProduccionController@updProduccionEstado'); 
 Route::name('produccion-consulta')->get('produccion/asociar/orden/produccion/articulo', 'Produccion\ProduccionController@getProduccionByOrdenProduccion'); 
 Route::name('produccion-consulta')->get('produccion/asociar/orden/produccion/articulo/todos', 'Produccion\ProduccionController@getProduccionByOrdenProduccionTodos');
 Route::name('produccion-consulta')->get('produccion/articulo/insumo', 'Produccion\ProduccionController@getInsumosByArticuloId');
 Route::name('produccion-consulta')->get('produccion/detalle/by/produccion/id', 'Produccion\ProduccionController@produccionDetalleByProduccionId');
 Route::name('produccion-consulta')->get('produccion/proceso/by/detalle/id', 'Produccion\ProduccionController@getProduccionProcesoByOrdenProduccionDetalleId');
+Route::name('produccion-consulta')->get('produccion/proceso/by/estado', 'Produccion\ProduccionController@getProduccionProcesoByEstado');
+Route::name('produccion-consulta')->get('produccion/proceso/by/dates', 'Produccion\ProduccionController@getProduccionProcesoByDates');
 
 
 

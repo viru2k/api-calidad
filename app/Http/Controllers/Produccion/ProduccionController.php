@@ -419,16 +419,22 @@ public function setProduccion(Request $request){
 $t = $request->OrdenProduccionDetalle;
 
 foreach ($t as $res) {
+  $tmp_hora = str_replace('/', '-',  $res["horas"]);
+  $hora =  date('H:i:s', strtotime($tmp_hora));  
   $tmp_fecha = str_replace('/', '-',  $res["fecha_produccion"]);
-  $fecha_produccion =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+  $fecha_produccion =  date('Y-m-d H:i', strtotime($tmp_fecha));
+
   if($res["cantidad"] != 0){
     DB::table('orden_produccion_detalle')->insertGetId([            
       'orden_produccion_id' => $id,
       'articulo_id' => $res["id"],      
-      'fecha_produccion' => $fecha_produccion,    
+      'fecha_produccion' => $fecha_produccion,   
+      'hora' => $hora,  
       'cantidad_solicitada' => $res["cantidad_solicitada"],       
+      
       'cantidad_usada' =>  0,  
       'cantidad_existente' => $res["cantidad_solicitada"],  
+      'grupo_id' => $res["grupo_id"],  
       'usuario_modifica_id' => $request->usuario_modifica_id,  
       'estado'        => 'ACTIVO',
       'created_at' => date("Y-m-d H:i:s"),
@@ -439,6 +445,15 @@ foreach ($t as $res) {
 return response()->json($id, "200");  
 }
 
+
+public function updProduccionEstado(Request $request, $id){
+  $res =  DB::table('orden_produccion')
+  ->where('id', $id)
+  ->update([      
+    'estado' => $request->input('estado')]);
+
+    return response()->json($res, "200");
+}
 
 /* -------------------------------------------------------------------------- */
 /*                 OBTENGO EL LISTADO DE INSUMOS POR ARTICULO                 */
@@ -561,32 +576,40 @@ public function setProduccionProceso(Request $request){
     $tmp_fecha = str_replace('/', '-',  $request->fecha_hasta);
     $fecha_hasta =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
 
+    try {
+      
 
-  $id =    DB::table('produccion_proceso')->insertGetId([
-    'orden_produccion_detalle_id' => $request->orden_produccion_detalle_id, 
-    'articulo_id' => $request->articulo_id,        
-    'cantidad_solicitada' => $request->cantidad_solicitada, 
-    'cantidad_usada' => $request->cantidad_usada,         
-    'cantidad_pendiente' => $request->cantidad_pendiente,  
-    'cantidad_producida' => $request->cantidad_producida,  
-    'usuario_modifica_id' => $request->usuario_modifica_id,  
-    'maquina_id' => $request->maquina_id,  
-    'hora_inicio' =>  $request->hora_inicio,  
-    'hora_fin' =>  $request->hora_fin,
-    'estado' => $request->estado,      
-    'created_at' => date("Y-m-d H:i:s"),
-    'updated_at' => date("Y-m-d H:i:s")
-]);   
+      $id =    DB::table('produccion_proceso')->insertGetId([
+        'orden_produccion_detalle_id' => $request->orden_produccion_detalle_id, 
+        'articulo_id' => $request->articulo_id,        
+        'cantidad_solicitada' => $request->cantidad_solicitada, 
+        'cantidad_usada' => $request->cantidad_usada,         
+        'cantidad_pendiente' => $request->cantidad_pendiente,  
+        'cantidad_producida' => $request->cantidad_producida,  
+        'usuario_modifica_id' => $request->usuario_modifica_id,  
+        'maquina_id' => $request->maquina_id,  
+        'hora_inicio' =>  $request->hora_inicio,  
+        'hora_fin' =>  $request->hora_fin,
+        'estado' => $request->estado,      
+        'lote' => $request->lote,      
+        'created_at' => date("Y-m-d H:i:s"),
+        'updated_at' => date("Y-m-d H:i:s")
+    ]);   
+    
+    if($id !== 0) {
+      $res =  DB::table('orden_produccion_detalle')
+      ->where('id', $request->input('orden_produccion_detalle_id'))  
+      ->update([
+        'cantidad_usada' => $request->cantidad_usada,
+        'cantidad_existente' =>  $request->cantidad_pendiente,
+        'usuario_modifica_id' => $request->usuario_modifica_id,             
+        'updated_at' => date("Y-m-d H:i:s")]);
+    }
 
-if($id !== 0) {
-  $res =  DB::table('orden_produccion_detalle')
-  ->where('id', $request->input('orden_produccion_detalle_id'))  
-  ->update([
-    'cantidad_usada' => $request->cantidad_usada,
-    'cantidad_existente' =>  $request->cantidad_pendiente,
-    'usuario_modifica_id' => $request->usuario_modifica_id,             
-    'updated_at' => date("Y-m-d H:i:s")]);
-}
+    } catch (\Throwable $th) {
+      return response()->json($th, "500");  
+    }
+
   return response()->json($id, "200");  
 }
 
@@ -604,6 +627,52 @@ public function updProduccionProceso(Request $request, $id){
     'updated_at' => date("Y-m-d H:i:s")]);
 
     return response()->json($res, "200");
+}
+
+
+public function getProduccionProcesoByEstado(Request $request)
+{    
+ 
+    try {
+      $res = DB::select( DB::raw("SELECT produccion_proceso.id, `orden_produccion_detalle_id`, produccion_proceso.articulo_id, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_pendiente, `cantidad_producida`, produccion_proceso.usuario_modifica_id, `maquina_id`, `hora_fin`, `hora_inicio`, produccion_proceso.estado, orden_produccion_detalle.id as orden_produccion_detalle_id, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada as  orden_produccion_detalle_cantidad_solicitada,
+      orden_produccion_detalle.cantidad_usada AS orden_produccion_detalle_cantidad_usada, orden_produccion_detalle.cantidad_existente AS orden_produccion_detalle_cantidad_existente, articulo.nombre, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.unidades, articulo_propiedades.volumen, maquina.maquina_nombre  , lote
+FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo,articulo_propiedades,  maquina 
+WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id AND produccion_proceso.estado = 'ACTIVO'
+   ")
+  );
+    } catch (\Throwable $th) {
+      return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
+    }
+
+
+      return response()->json($res, "200");
+}
+
+
+
+public function getProduccionProcesoByDates(Request $request)
+{    
+ 
+  $tmp_fecha = str_replace('/', '-',  $request->hora_inicio);
+  $fecha_desde =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
+
+  
+    $tmp_fecha = str_replace('/', '-',  $request->fecha_hasta);
+    $fecha_hasta =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
+
+    try {
+      $res = DB::select( DB::raw("SELECT produccion_proceso.id, `orden_produccion_detalle_id`, produccion_proceso.articulo_id, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_pendiente, `cantidad_producida`, produccion_proceso.usuario_modifica_id, `maquina_id`, `hora_fin`, `hora_inicio`, produccion_proceso.estado, orden_produccion_detalle.id as orden_produccion_detalle_id, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada as  orden_produccion_detalle_cantidad_solicitada,
+      orden_produccion_detalle.cantidad_usada AS orden_produccion_detalle_cantidad_usada, orden_produccion_detalle.cantidad_existente AS orden_produccion_detalle_cantidad_existente, articulo.nombre, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.unidades, articulo_propiedades.volumen, maquina.maquina_nombre  , lote
+FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo,articulo_propiedades,  maquina 
+WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id  AND fecha_produccion BETWEEN '".$fecha_desde."' AND '".$fecha_hasta."'
+   ")
+  );
+    } catch (\Throwable $th) {
+      return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
+    }
+
+
+      return response()->json($res, "200");
 }
 
 
