@@ -24,9 +24,8 @@ class MaquinaController extends ApiController
     public function store(Request $request)
     {
         $rules = [
-            'codigo' => 'required',          
-            'descripcion' => 'required',          
-            'complejidad' => 'required',  
+            'maquina_nombre' => 'required'
+            
            
         ];
 

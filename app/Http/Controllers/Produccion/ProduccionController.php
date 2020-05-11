@@ -614,31 +614,53 @@ public function setProduccionProceso(Request $request){
 }
 
 
-
 public function updProduccionProceso(Request $request, $id){
-  $res =  DB::table('produccion_proceso')
-  ->where('id', $request->input('insumo_id'))  
-  ->update([
-    'articulo_id' => $request->input('articulo_id'),
-    'insumo_id' => $request->input('insumo_id'),
-    'cantidad' => $request->input('cantidad'),
+
+  
+  $tmp_fecha = str_replace('/', '-',  $request->hora_fin);
+  $hora_fin =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
+
+
+   $res =  DB::table('produccion_proceso')
+  ->where('id', $id)  
+  ->update([        
+    'lote' => $request->input('lote'),
+    'maquina_id' => $request->input('maquina_id'), 
+    'cantidad_producida' => $request->input('cantidad_producida'), 
+    'cantidad_pendiente' => $request->input('cantidad_pendiente'),
+    'cantidad_usada' => $request->input('cantidad_usada'),
+    'hora_fin' => $hora_fin,
     'usuario_modifica_id' => $request->input('usuario_modifica_id'),           
     'estado' => $request->input('estado'),  
-    'updated_at' => date("Y-m-d H:i:s")]);
+    'updated_at' => date("Y-m-d H:i:s")]); 
+
+    if($id !== 0) {
+      $res =  DB::table('orden_produccion_detalle')
+      ->where('id', $id)  
+      ->update([
+        'cantidad_usada' => $request->input('cantidad_usada'),
+        'cantidad_existente' =>  $request->input('cantidad_pendiente'),
+        'usuario_modifica_id' => $request->input('usuario_modifica_id') ,             
+        'updated_at' => date("Y-m-d H:i:s")]);
+    }
 
     return response()->json($res, "200");
 }
 
 
+
+
+
+
 public function getProduccionProcesoByEstado(Request $request)
-{    
- 
+{  
+
+  $estado = $request->estado;
     try {
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, `orden_produccion_detalle_id`, produccion_proceso.articulo_id, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_pendiente, `cantidad_producida`, produccion_proceso.usuario_modifica_id, `maquina_id`, `hora_fin`, `hora_inicio`, produccion_proceso.estado, orden_produccion_detalle.id as orden_produccion_detalle_id, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada as  orden_produccion_detalle_cantidad_solicitada,
       orden_produccion_detalle.cantidad_usada AS orden_produccion_detalle_cantidad_usada, orden_produccion_detalle.cantidad_existente AS orden_produccion_detalle_cantidad_existente, articulo.nombre, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.unidades, articulo_propiedades.volumen, maquina.maquina_nombre  , lote
-FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo,articulo_propiedades,  maquina 
-WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id AND produccion_proceso.estado = 'ACTIVO'
-   ")
+      FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo,articulo_propiedades,  maquina 
+      WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id AND produccion_proceso.estado = '".$estado."'  LIMIT 100 ")
   );
     } catch (\Throwable $th) {
       return response()->json('ERROR INTERNO DEL SERVIDOR '.$th, "500");
@@ -653,7 +675,7 @@ WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle
 public function getProduccionProcesoByDates(Request $request)
 {    
  
-  $tmp_fecha = str_replace('/', '-',  $request->hora_inicio);
+  $tmp_fecha = str_replace('/', '-',  $request->fecha_desde);
   $fecha_desde =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
 
   

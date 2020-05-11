@@ -134,7 +134,7 @@ Route::name('produccion-consulta')->get('produccion/confeccion/borrar', 'Producc
 
 /* --------------------------- PRODUCCION PROCESO --------------------------- */
 Route::name('produccion-consulta')->post('produccion/proceso/crear', 'Produccion\ProduccionController@setProduccionProceso');
-Route::name('produccion-consulta')->put('produccion/proceso/modificar/{id}', 'Produccion\ProduccionController@updProduccionProceso'); 
+Route::name('produccion-consulta')->put('produccion/proceso/finalizar/{id}', 'Produccion\ProduccionController@updProduccionProceso'); 
 
 /* -------------------------------------------------------------------------- */
 /*                            PENDIENTES DE VALIDAR                           */
