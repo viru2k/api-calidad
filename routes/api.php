@@ -113,7 +113,8 @@ Route::name('insumos-consulta')->get('insumos/by/articulo', 'Insumos\InsumoContr
 Route::name('insumos-consulta')->put('insumos/{id}', 'Insumos\InsumoController@putInsumos'); 
 
 Route::name('insumos-consulta')->get('insumos/stock/by/estado', 'Insumos\InsumoController@getStockInsumoByEstado');
-Route::name('insumos-consulta')->get('insumos/stock/by/produccion', 'Insumos\InsumoController@getStockInsumoByProduccion');
+Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo', 'Insumos\InsumoController@getStockMovimientoByInsumoAndEstado');
+Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo/existencia', 'Insumos\InsumoController@getStockMovimientoByEstadoConExistencia');
 Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoController@getStockInsumoByDate');
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
 
