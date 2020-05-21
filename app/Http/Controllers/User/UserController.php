@@ -124,7 +124,8 @@ class UserController extends ApiController
      $horario = DB::table( 'modulo')       
      ->select(
         'id as modulo_id',
-        'nombre as modulo_nombre'
+        'nombre as modulo_nombre',
+        'titulo'
         )            
        ->get();
            

@@ -8,103 +8,176 @@ use App\Http\Controllers\ApiController;
 
 class CalidadController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-     
-
-        $res = DB::select( DB::raw("   SELECT id, referencia_iso, referencia_descripcion, referencia_revision, created_at, updated_at, usuario_alta_id FROM calidad_tipo_control "));
-   
-        return response()->json($res, "200");
-    }
-
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function postCalidad(Request $request)
-    {
-        $id =    DB::table('calidad_tipo_control')->insertGetId([
-        
-            'referencia_iso' => $request->referencia_iso, 
-            'referencia_descripcion' => $request->referencia_descripcion,        
-            'referencia_revision' => $request->referencia_revision,    
-            'usuario_alta_id' => $request->usuario_alta_id,                 
-            'created_at' => date("Y-m-d H:i:s"),
-            'updated_at' => date("Y-m-d H:i:s")
-        ]);    
-          return response()->json($id, "200");
-    }
-
  
 
+/* -------------------------------------------------------------------------- */
+/*                      ENCABEZADO DE CONTROL DE CALIDAD                      */
+/* -------------------------------------------------------------------------- */
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $res =  DB::table('calidad_tipo_control')
-        ->where('id', $id)
-        ->update([
-          'referencia_iso' => $request->input('referencia_iso'),
-          'referencia_descripcion' =>  $request->input('referencia_descripcion'),   
-          'referencia_revision' =>  $request->input('referencia_revision'),   
-          'usuario_alta_id' =>  $request->input('usuario_alta_id'),    
-          'updated_at' => date("Y-m-d H:i:s")]);
+  public function getCalidadControlEncabezado(Request $request)
+  {      
+    $res = DB::select( DB::raw("SELECT `id`, `calidad_titulo`, `calidad_descripcion`, `ficha_nro` FROM `calidad_control`
+    "));
+        return response()->json($res, "200");
+  }
+
+
+  public function setCalidadControlEncabezado(Request $request)
+  {
+    $id =    DB::table('calidad_control')->insertGetId([
+      
+      'calidad_titulo' => $request->calidad_titulo, 
+      'calidad_descripcion' => $request->calidad_descripcion,    
+      'ficha_nro' => $request->ficha_nro
+  ]);    
+    return response()->json($id, "200");  
+  }
+
   
+  public function putCalidadControlEncabezado(Request $request, $id)
+  {
+    $res =  DB::table('calidad_control')
+    ->where('id', $id)
+    ->update([
+      'calidad_titulo' => $request->input('calidad_titulo'),
+      'calidad_descripcion' => $request->input('calidad_descripcion'),
+      'ficha_nro' => $request->input('ficha_nro')
+      ]);
+      
+      return response()->json($res, "200");
+  }
+  
+
+/* -------------------------------------------------------------------------- */
+/*                      PARAMETROS DEL CONTROL DE CALIDAD                     */
+/* -------------------------------------------------------------------------- */
+
+  public function getCalidadControlParametros(Request $request)
+  {      
+    $res = DB::select( DB::raw("SELECT `id`, `parametro`, estado FROM `calidad_parametro`
+    "));
+        return response()->json($res, "200");
+  }
+
+  public function setCalidadControlParametros(Request $request)
+  {
+    $id =    DB::table('calidad_parametro')->insertGetId([
+      'parametro' => $request->parametro,
+      'estado' => $request->estado
+  ]);    
+    return response()->json($id, "200");  
+  }
+
+
+  public function putCalidadControlParametros(Request $request, $id)
+  {
+    $res =  DB::table('calidad_parametro')
+    ->where('id', $id)
+    ->update([
+      'parametro' => $request->input('parametro'),
+      'estado' => $request->input('estado')
+      ]);
+  
+      return response()->json($res, "200");
+  }
+
+/* -------------------------------------------------------------------------- */
+/*                   MEZCLA CONTROL DE CALIDAD Y PARAMETROS                   */
+/* -------------------------------------------------------------------------- */
+
+  public function getCalidadControlParametroControl(Request $request)
+  {      
+    $control_calidad_id =  $request->input('control_calidad_id');   
+
+    $res = DB::select( DB::raw("SELECT calidad_control_parametro.id, calidad_control_parametro.parametro_id, calidad_control_parametro.control_calidad_id, calidad_control.calidad_titulo, calidad_control.calidad_descripcion, calidad_control.ficha_nro, calidad_parametro.parametro, calidad_parametro.estado 
+    FROM calidad_control_parametro, calidad_parametro, calidad_control 
+    WHERE calidad_control_parametro.parametro_id = calidad_parametro.id AND calidad_control_parametro.control_calidad_id = calidad_control.id AND calidad_control_parametro.control_calidad_id = :control_calidad_id
+    "),
+     array(                       
+      'control_calidad_id' => $control_calidad_id
+    )
+    );
+        return response()->json($res, "200");
+  }
+
+
+  public function setCalidadControlParametroControl(Request $request)
+  {
+    $id =    DB::table('calidad_control_parametro')->insertGetId([
+      'parametro_id' => $request->parametro_id,
+      'control_calidad_id' => $request->control_calidad_id
+  ]);    
+    return response()->json($id, "200");  
+  }
+
+
+  public function putCalidadControlParametroControl(Request $request, $id)
+  {
+    $res =  DB::table('calidad_control_parametro')
+    ->where('id', $id)
+    ->update([
+      'parametro_id' => $request->input('parametro_id'),
+      'control_calidad_id' => $request->input('control_calidad_id')
+      ]);
+  
+      return response()->json($res, "200");
+  }
+
+
+/* -------------------------------------------------------------------------- */
+/*                    DETALLE DE CONTROL POR ID DE PROCESO                    */
+/* -------------------------------------------------------------------------- */
+
+    public function getControlByProcesoId(Request $request)
+    {
+        $produccion_proceso_id =  $request->input('produccion_proceso_id');   
+
+      $res = DB::select( DB::raw("SELECT calidad_control.id, calidad_control_parametro_id, calidad_valor, calidad_control_parametro_valor.usuario_modifica_id, es_no_conformidad, tiene_accion_correctiva, 
+      fecha_carga, produccion_proceso_id, calidad_control.calidad_titulo, calidad_control.calidad_descripcion,  
+      calidad_control.ficha_nro, calidad_parametro.parametro, users.nombreyapellido, produccion_proceso.lote, orden_produccion_detalle.fecha_produccion, 
+      articulo.nombre as articulo_nombre 
+      FROM  calidad_control, calidad_control_parametro, calidad_parametro , calidad_control_parametro_valor, produccion_proceso, orden_produccion_detalle, articulo, users 
+      WHERE calidad_control.id = calidad_control_parametro.control_calidad_id AND calidad_parametro.id = calidad_control_parametro.parametro_id 
+      AND calidad_control_parametro_valor.calidad_control_parametro_id = calidad_control_parametro.id AND calidad_control_parametro_valor.usuario_modifica_id = users.id 
+      AND calidad_control_parametro_valor.produccion_proceso_id = produccion_proceso.id AND calidad_parametro.estado = 'ACTIVO'
+      AND produccion_proceso.articulo_id = articulo.id AND orden_produccion_detalle.id = produccion_proceso.orden_produccion_detalle_id AND produccion_proceso.id = :produccion_proceso_id
+      "), array(                       
+            'produccion_proceso_id' => $produccion_proceso_id
+          ));
+
           return response()->json($res, "200");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function getCalidadByFecha(Request $request)
-    {
     
+    public function getControlByProcesoByDates(Request $request)
+    {
       $tmp_fecha = str_replace('/', '-', $request->input('fecha_desde'));
       $fecha_desde =  date('Y-m-d H:i', strtotime($tmp_fecha));   
       $tmp_fecha = str_replace('/', '-', $request->input('fecha_hasta'));
-      $fecha_hasta =  date('Y-m-d H:i', strtotime($tmp_fecha));  
-     
-    
-     
-      $res = DB::select( DB::raw("SELECT  calidad_tipo_control.referencia_iso, calidad_tipo_control.referencia_descripcion ,  calidad_tipo_control.referencia_revision, calidad_control.descripcion as  calidad_control_descripcion, calidad_producto.producto_nombre, calidad_producto.fecha_control, calidad_producto.hora, calidad_producto.tiene_no_conformidad, calidad_producto.observacion, calidad_dato_relevado.calidad_dato_nombre, calidad_dato_relevado_valor.calidad_dato_valor, users.id as usuario_id, users.nombreyapellido 
-      FROM calidad_control, calidad_tipo_control, calidad_producto, calidad_dato_relevado, calidad_dato_relevado_valor, users 
-      WHERE calidad_control.calidad_tipo_control_id = calidad_tipo_control.id AND calidad_producto.calidad_control_id = calidad_control.id AND calidad_dato_relevado_valor.calidad_producto_id = calidad_producto.id AND calidad_dato_relevado_valor.calidad_dato_relevado_id = calidad_dato_relevado.id AND calidad_producto.usuario_alta_id = users.id  AND calidad_producto.fecha_control BETWEEN   :fecha_desde  and :fecha_hasta
-      
-       "), array(                       
+      $fecha_hasta =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+
+      $res = DB::select( DB::raw("SELECT calidad_control.id, calidad_control_parametro_id, calidad_valor, calidad_control_parametro_valor.usuario_modifica_id, es_no_conformidad, tiene_accion_correctiva, 
+      fecha_carga, produccion_proceso_id, calidad_control.calidad_titulo, calidad_control.calidad_descripcion,  
+      calidad_control.ficha_nro, calidad_parametro.parametro, users.nombreyapellido, produccion_proceso.lote, orden_produccion_detalle.fecha_produccion, 
+      articulo.nombre as articulo_nombre 
+      FROM  calidad_control, calidad_control_parametro, calidad_parametro , calidad_control_parametro_valor, produccion_proceso, orden_produccion_detalle, articulo, users 
+      WHERE calidad_control.id = calidad_control_parametro.control_calidad_id AND calidad_parametro.id = calidad_control_parametro.parametro_id 
+      AND calidad_control_parametro_valor.calidad_control_parametro_id = calidad_control_parametro.id AND calidad_control_parametro_valor.usuario_modifica_id = users.id 
+      AND calidad_control_parametro_valor.produccion_proceso_id = produccion_proceso.id AND calidad_parametro.estado = 'ACTIVO'
+      AND produccion_proceso.articulo_id = articulo.id AND orden_produccion_detalle.id = produccion_proceso.orden_produccion_detalle_id AND orden_produccion_detalle.fecha_produccion 
+      BETWEEN   :fecha_desde AND :fecha_hasta
+      "), array(                       
             'fecha_desde' => $fecha_desde,
-            'fecha_hasta' => $fecha_hasta
+            'fecha_desde' => $fecha_hasta,
           ));
-    
+
           return response()->json($res, "200");
     }
 
-/* -------------------------------------------------------------------------- */
-/*             OBTENGO LOS PARAMETROS DE PRODUCCION SEGUN CONTROL             */
-/* -------------------------------------------------------------------------- */
-
-// TODO REALIZAR UNA CONSULTA DONDE TRAIGA LA PRODUCCION  POR DIA, POR TURNO
-    // SELECT  calidad_tipo_control.referencia_iso, calidad_tipo_control.referencia_descripcion ,  calidad_tipo_control.referencia_revision, calidad_control.descripcion as  calidad_control_descripcion, calidad_producto.producto_nombre, calidad_producto.fecha_control, calidad_producto.hora, calidad_producto.tiene_no_conformidad, calidad_producto.observacion, calidad_dato_relevado.calidad_dato_nombre, calidad_dato_relevado_valor.calidad_dato_valor, users.id as usuario_id, users.nombreyapellido FROM calidad_control, calidad_tipo_control, calidad_producto, calidad_dato_relevado, calidad_dato_relevado_valor, users WHERE calidad_control.calidad_tipo_control_id = calidad_tipo_control.id AND calidad_producto.calidad_control_id = calidad_control.id AND calidad_dato_relevado_valor.calidad_producto_id = calidad_producto.id AND calidad_dato_relevado_valor.calidad_dato_relevado_id = calidad_dato_relevado.id AND calidad_producto.usuario_alta_id = users.id 
+    public function delControlParametro(Request $request)
+    {
+      $id = $request->input('id');
+    DB::table('calidad_control_parametro')->where('id', '=', $id)->delete();
+    return response()->json($id, "200");
+    }
 }

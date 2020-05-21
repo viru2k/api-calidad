@@ -98,9 +98,19 @@ Route::name('articulo-confeccion')->put('articulo/propiedades/{id}',     'Articu
 /* -------------------------------------------------------------------------- */
 
 
-Route::name('calidad')->post('calidad/tipocontrol', 'Calidad\CalidadController@postCalidad');
-Route::name('calidad')->get('calidad/control/by/fecha', 'Calidad\CalidadController@getCalidadByFecha');
-Route::name('calidad')->put('calidad/{id}', 'Calidad\CalidadController@putCalidad'); 
+Route::name('calidad')->get('calidad/control/encabezado', 'Calidad\CalidadController@getCalidadControlEncabezado');
+Route::name('calidad')->put('calidad/control/encabezado/{id}', 'Calidad\CalidadController@putCalidadControlEncabezado');
+Route::name('calidad')->post('calidad/control/encabezado', 'Calidad\CalidadController@setCalidadControlEncabezado');
+Route::name('calidad')->get('calidad/control/parametros', 'Calidad\CalidadController@getCalidadControlParametros');
+Route::name('calidad')->put('calidad/control/parametros/{id}', 'Calidad\CalidadController@putCalidadControlParametros');
+Route::name('calidad')->post('calidad/control/parametros', 'Calidad\CalidadController@setCalidadControlParametros');
+Route::name('calidad')->get('calidad/control/parametros/control/by/id', 'Calidad\CalidadController@getCalidadControlParametroControl');
+Route::name('calidad')->put('calidad/control/parametros/control/by/id/{id}', 'Calidad\CalidadController@putCalidadControlParametroControl');
+Route::name('calidad')->post('calidad/control/parametros/control/by/id', 'Calidad\CalidadController@setCalidadControlParametroControl');
+
+Route::name('calidad')->get('calidad/control/by/proceso/id', 'Calidad\CalidadController@getControlByProcesoId'); 
+Route::name('calidad')->get('calidad/control/by/dates', 'Calidad\CalidadController@getControlByProcesoByDates'); 
+Route::name('calidad')->delete('calidad/control/proceso', 'Calidad\CalidadController@delControlParametro');
 
 /* -------------------------------------------------------------------------- */
 /*                              RUTAS DE INSUMOS                              */
