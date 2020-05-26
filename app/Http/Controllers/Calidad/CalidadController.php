@@ -123,6 +123,44 @@ class CalidadController extends ApiController
       return response()->json($res, "200");
   }
 
+/* -------------------------------------------------------------------------- */
+/*             ALMACENO EL CONTRO REALIZADO UN PROCESO PRODUCTIVO             */
+/* -------------------------------------------------------------------------- */
+
+  public function setCalidadControlParametroControlValor(Request $request)
+  {
+    $i = 0;
+    $r = $request;
+try { 
+
+$cont = count($request->all());
+//var_dump($request);
+  while($i< $cont) {
+   // var_dump($res[$i]['parametro_id']);
+  // var_dump($req[$i]);
+ 
+   // echo $req[$i]['id'];
+     $id =    DB::table('calidad_control_parametro_valor')->insertGetId([
+      'calidad_control_parametro_id' => $r[$i]['parametro_id'],
+      'calidad_valor' => $r[$i]['calidad_valor'],
+      'usuario_modifica_id' => $r[$i]['usuario_modifica_id'],
+      'es_no_conformidad' => $r[$i]['no_conformidad'],
+      'tiene_accion_correctiva' => $r[$i]['es_accion_correctiva'],
+      'es_no_conformidad_descripcion' => $r[$i]['es_no_conformidad_descripcion'],
+      'tiene_accion_correctiva_descripcion' => $r[$i]['tiene_accion_correctiva_descripcion'],
+      'fecha_carga' => $r[$i]['fecha'],
+      'produccion_proceso_id' => $r[$i]['produccion_proceso_id']
+  ]);    
+      $i++;
+  }
+} catch (\Throwable $th) {
+  return response()->json($th, "500");  
+}
+
+  
+   return response()->json($id, "200");  
+  }
+
 
 /* -------------------------------------------------------------------------- */
 /*                    DETALLE DE CONTROL POR ID DE PROCESO                    */

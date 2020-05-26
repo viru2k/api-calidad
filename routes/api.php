@@ -44,6 +44,7 @@ Route::resource('user', 'User\UserController');
 /* -------------------------------------------------------------------------- */
 
 Route::resource('unidad', 'Unidad\UnidadController'); 
+Route::resource('grupoanalisis', 'GrupoAnalisis\GrupoAnalisisController'); 
 Route::resource('produccion', 'Produccion\ProduccionController'); 
 Route::resource('calidad', 'Calidad\CalidadController'); 
 Route::resource('insumos', 'Insumos\InsumoController'); 
@@ -107,6 +108,8 @@ Route::name('calidad')->post('calidad/control/parametros', 'Calidad\CalidadContr
 Route::name('calidad')->get('calidad/control/parametros/control/by/id', 'Calidad\CalidadController@getCalidadControlParametroControl');
 Route::name('calidad')->put('calidad/control/parametros/control/by/id/{id}', 'Calidad\CalidadController@putCalidadControlParametroControl');
 Route::name('calidad')->post('calidad/control/parametros/control/by/id', 'Calidad\CalidadController@setCalidadControlParametroControl');
+
+Route::name('calidad')->post('calidad/control/parametros/valor', 'Calidad\CalidadController@setCalidadControlParametroControlValor');
 
 Route::name('calidad')->get('calidad/control/by/proceso/id', 'Calidad\CalidadController@getControlByProcesoId'); 
 Route::name('calidad')->get('calidad/control/by/dates', 'Calidad\CalidadController@getControlByProcesoByDates'); 

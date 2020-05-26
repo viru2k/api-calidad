@@ -15,7 +15,9 @@ class InsumoController extends ApiController
      */
     public function index()
     {
-      $res = DB::select( DB::raw("SELECT insumo.id, insumo.nombre, insumo.descripcion, unidad_id, insumo.usuario_modifica_id, cantidad_unitaria, cantidad_empaque, precio_unitario, precio_empaque, stock_minimo, estado,  stock_promedio, stock_maximo, unidad.descripcion as unidad_descripcion, users.nombreyapellido FROM insumo, unidad, users WHERE  insumo.unidad_id = unidad.id AND insumo.usuario_modifica_id = users.id "));
+      $res = DB::select( DB::raw("SELECT insumo.id, insumo.nombre, insumo.descripcion, unidad_id, insumo.usuario_modifica_id, cantidad_unitaria, cantidad_empaque, precio_unitario, precio_empaque, stock_minimo, estado,  stock_promedio, stock_maximo, unidad.descripcion as unidad_descripcion, users.nombreyapellido ,grupo_analisis.id AS grupo_analisis_id, grupo_analisis.grupo_nombre, grupo_analisis.color
+      FROM insumo, unidad, users , grupo_analisis
+      WHERE  insumo.unidad_id = unidad.id AND insumo.usuario_modifica_id = users.id AND  insumo.grupo_analisis_id = grupo_analisis.id"));
    
         return response()->json($res, "200");
    
@@ -34,6 +36,7 @@ class InsumoController extends ApiController
         'nombre' => $request->nombre, 
         'descripcion' => $request->descripcion,        
         'unidad_id' => $request->unidad_id, 
+        'grupo_analisis_id' => $request->grupo_analisis_id,      
         'usuario_modifica_id' => $request->usuario_modifica_id,             
         'cantidad_unitaria' => $request->cantidad_unitaria,    
         'cantidad_empaque' => $request->cantidad_empaque,    
@@ -61,6 +64,7 @@ class InsumoController extends ApiController
         'nombre' => $request->input('nombre'),
         'descripcion' => $request->input('descripcion'),
         'unidad_id' => $request->input('unidad_id'),
+        'grupo_analisis_id' => $request->input('grupo_analisis_id'),
         'usuario_modifica_id' => $request->input('usuario_modifica_id'),               
         'cantidad_unitaria' => $request->input('cantidad_unitaria'),   
         'cantidad_empaque' => $request->input('cantidad_empaque'),   

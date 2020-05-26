@@ -105,10 +105,12 @@ class UserController extends ApiController
         'users.email',
         'modulo.id as modulo_id',
         'modulo.nombre as modulo_nombre',   
+        'titulo',
         'user_modulo.id as user_modulo_id',
         'users.puede_notificar'
         )
-            ->where('users.email','=',$email)                                   
+            ->where('users.email','=',$email)      
+            ->orderBy('titulo', 'ASC')                             
             ->get();
            
         return $this->showAll($horario);
@@ -127,6 +129,7 @@ class UserController extends ApiController
         'nombre as modulo_nombre',
         'titulo'
         )            
+        ->orderBy('titulo', 'ASC')
        ->get();
            
         return $this->showAll($horario);
@@ -136,15 +139,26 @@ class UserController extends ApiController
     public function agregarMenuUsuario(Request $request,$id){       
       
         $i = 0;
-       $modulo_id =   $request['modulo_id'] ;
+
+     //  echo $request[0]['modulo_id'];
+       foreach($request as $req) {
+        $res = DB::select( DB::raw(" INSERT INTO user_modulo (user_id, modulo_id) SELECT '".$id."','".$request[$i]['modulo_id']."' FROM DUAL
+        WHERE NOT EXISTS 
+          (SELECT user_id,modulo_id FROM user_modulo WHERE user_id = '".$id."' AND modulo_id= '".$request[$i]['modulo_id']."' )"));
+        $i++; 
+       }
+      
+  /*     $modulo_id =   $request['modulo_id'] ;
          
          $id= DB::table('user_modulo')->insertGetId(
            [ 'user_id' => $id,
             'modulo_id' =>  $modulo_id    ]    
         );
     
+*/
+      //  var_dump($request);
 
-        return response()->json($modulo_id, "201"); 
+        return response()->json($request, "201"); 
 //echo $id;
     }
 
