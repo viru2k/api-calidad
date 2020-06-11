@@ -671,14 +671,14 @@ public function getProduccionProcesoByEstado(Request $request)
 }
 
 
+/* -------------------------------------------------------------------------- */
+/*            BUSCA LOS PROCESOS DE PRODUCCION POR FECHA DE INICIO            */
+/* -------------------------------------------------------------------------- */
 
 public function getProduccionProcesoByDates(Request $request)
 {    
- 
-  $tmp_fecha = str_replace('/', '-',  $request->fecha_desde);
-  $fecha_desde =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
-
-  
+    $tmp_fecha = str_replace('/', '-',  $request->fecha_desde);
+    $fecha_desde =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
     $tmp_fecha = str_replace('/', '-',  $request->fecha_hasta);
     $fecha_hasta =  date('Y-m-d H:i:s', strtotime($tmp_fecha)); 
 
@@ -686,7 +686,7 @@ public function getProduccionProcesoByDates(Request $request)
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, `orden_produccion_detalle_id`, produccion_proceso.articulo_id, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_pendiente, `cantidad_producida`, produccion_proceso.usuario_modifica_id, `maquina_id`, `hora_fin`, `hora_inicio`, produccion_proceso.estado, orden_produccion_detalle.id as orden_produccion_detalle_id, orden_produccion_detalle.fecha_produccion, orden_produccion_detalle.cantidad_solicitada as  orden_produccion_detalle_cantidad_solicitada,
       orden_produccion_detalle.cantidad_usada AS orden_produccion_detalle_cantidad_usada, orden_produccion_detalle.cantidad_existente AS orden_produccion_detalle_cantidad_existente, articulo.nombre, articulo_propiedades.pallet_pisos, articulo_propiedades.pallet_pack, articulo_propiedades.unidades, articulo_propiedades.volumen, maquina.maquina_nombre  , lote
 FROM `produccion_proceso`, orden_produccion_detalle, orden_produccion, articulo,articulo_propiedades,  maquina 
-WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id  AND fecha_produccion BETWEEN '".$fecha_desde."' AND '".$fecha_hasta."'
+WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle.id AND orden_produccion_detalle.orden_produccion_id = orden_produccion.id AND produccion_proceso.articulo_id = articulo.id AND maquina.id = produccion_proceso.maquina_id AND articulo.id = articulo_propiedades.articulo_id  AND hora_inicio BETWEEN '".$fecha_desde."' AND '".$fecha_hasta."'
    ")
   );
     } catch (\Throwable $th) {
@@ -697,6 +697,16 @@ WHERE  produccion_proceso.orden_produccion_detalle_id = orden_produccion_detalle
       return response()->json($res, "200");
 }
 
+/* -------------------------------------------------------------------------- */
+/*              ACTUALIZAR EL ESTADO DE UNAR ORDEN DE PRODUCCION              */
+/* -------------------------------------------------------------------------- */
 
+public function updOrdenProduccionProcesoEstado(Request $request){
+  $res =  DB::table('orden_produccion_detalle')
+  ->where('id', $request->input('orden_produccion_detalle_id'))  
+  ->update([
+    'estado' => $request->estado,             
+    'updated_at' => date("Y-m-d H:i:s")]);
+}
 
 }

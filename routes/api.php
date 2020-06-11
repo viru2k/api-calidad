@@ -113,7 +113,11 @@ Route::name('calidad')->post('calidad/control/parametros/valor', 'Calidad\Calida
 
 Route::name('calidad')->get('calidad/control/by/proceso/id', 'Calidad\CalidadController@getControlByProcesoId'); 
 Route::name('calidad')->get('calidad/control/by/dates', 'Calidad\CalidadController@getControlByProcesoByDates'); 
+Route::name('calidad')->get('calidad/control/desviacion/parametro/proceso/by/dates', 'Calidad\CalidadController@getDesviacionesParametroCalidadByProcesoByDates'); 
 Route::name('calidad')->delete('calidad/control/proceso', 'Calidad\CalidadController@delControlParametro');
+Route::name('calidad')->get('calidad/control/detalle/by/proceso/controles', 'Calidad\CalidadController@getControlesDetalleByIdProduccion'); 
+Route::name('calidad')->get('calidad/control/by/proceso/controles', 'Calidad\CalidadController@getControlesByIdProduccion'); 
+
 
 /* -------------------------------------------------------------------------- */
 /*                              RUTAS DE INSUMOS                              */
@@ -149,6 +153,7 @@ Route::name('produccion-consulta')->get('produccion/confeccion/borrar', 'Producc
 /* --------------------------- PRODUCCION PROCESO --------------------------- */
 Route::name('produccion-consulta')->post('produccion/proceso/crear', 'Produccion\ProduccionController@setProduccionProceso');
 Route::name('produccion-consulta')->put('produccion/proceso/finalizar/{id}', 'Produccion\ProduccionController@updProduccionProceso'); 
+Route::name('produccion-consulta')->put('produccion/detalle/estado/{id}', 'Produccion\ProduccionController@updOrdenProduccionProcesoEstado'); 
 
 /* -------------------------------------------------------------------------- */
 /*                            PENDIENTES DE VALIDAR                           */
