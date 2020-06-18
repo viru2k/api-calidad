@@ -254,7 +254,7 @@ $cont = count($request->all());
       
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, produccion_proceso.lote, produccion_proceso.hora_fin, produccion_proceso.hora_inicio, 
       produccion_proceso.estado, calidad_control_parametro_valor.id as  calidad_control_parametro_valor_id , calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.es_no_conformidad, 
-      calidad_control_parametro_valor.tiene_accion_correctiva, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control.calidad_titulo, calidad_control.calidad_descripcion, 
+      calidad_control_parametro_valor.tiene_accion_correctiva,calidad_control_parametro_valor.tiene_accion_correctiva_descripcion, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control_parametro_valor.fecha_carga,   calidad_control.calidad_titulo, calidad_control.calidad_descripcion, 
       calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.id as calidad_parametro_id  
       FROM produccion_proceso, calidad_control_parametro_valor, calidad_control_parametro, calidad_control, calidad_parametro 
       WHERE produccion_proceso.id = calidad_control_parametro_valor.produccion_proceso_id AND calidad_control_parametro.parametro_id = calidad_parametro.id 
