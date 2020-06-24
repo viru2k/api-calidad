@@ -8,7 +8,8 @@
  */
 
 define('LARAVEL_START', microtime(true));
-
+//header("Access-Control-Allow-Origin: www.productosgraziani.com.ar/");
+//header("Access-Control-Allow-Origin: http://productosgraziani.com.ar/");
 header('Access-Control-Allow-Origin: *'); 
     header("Access-Control-Allow-Credentials: true");
     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
@@ -16,8 +17,8 @@ header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token , Authorization');
     header("Access-Control-Allow-Origin: http://localhost:4200");
    // header("Access-Control-Allow-Origin: http://localhost");
-   // header("Access-Control-Allow-Origin: http://productosgraziani.com.ar/");
-   // header("Access-Control-Allow-Origin: http://www.productosgraziani.com.ar/");
+
+    
     //header("Access-Control-Allow-Origin: https://clinicaz.com.ar/graziani");
   
 

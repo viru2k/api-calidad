@@ -134,8 +134,8 @@ Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo', 'Insumos\
 Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo/existencia', 'Insumos\InsumoController@getStockMovimientoByEstadoConExistencia');
 Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoController@getStockInsumoByDate');
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
-
-
+// INGRESO DE INSUMOS A STOCK
+Route::name('calidad')->post('insumos/stock/ingreso', 'Insumos\InsumoController@setInsumoStock'); 
 /* -------------------------------------------------------------------------- */
 /*                             RUTAS DE PRODUCCION                            */
 /* -------------------------------------------------------------------------- */

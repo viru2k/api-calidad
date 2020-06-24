@@ -87,30 +87,49 @@ class InsumoController extends ApiController
 
     public function setInsumoStock(Request $request)
     {
-      $tmp_fecha = str_replace('/', '-', $request->input('fecha_ingreso'));
+     
+
+      
+      $res =  $request;
+      
+      //echo $t[1]['insumo_id'];
+      $array =  (array) $res;
+    //  echo sizeof($array);
+      $longitud = sizeof($array);
+   //   echo $longitud;
+   try {
+    for( $i = 0; $i<$longitud; $i++ ) {
+      $tmp_fecha = str_replace('/', '-', $res[$i]["fecha_ingreso"]);
       $fecha_ingreso =  date('Y-m-d H:i', strtotime($tmp_fecha));   
-      $tmp_fecha = str_replace('/', '-', $request->input('fecha_movimiento'));
       $fecha_movimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));   
 
-      $id =    DB::table('stock_movimiento')->insertGetId([
-        
-        'insumo_id' => $request->insumo_id, 
-        'cantidad' => $request->cantidad,    
-        'cantidad_usada' => $request->cantidad_usada,  
-        'cantidad_existente' => $request->cantidad_existente,    
-        'importe_unitario' => $request->importe_unitario,  
-        'importe_acumulado' => $request->importe_acumulado,  
-        'importe_total' => $request->importe_total,
-        'usuario_modifica_id' => $request->usuario_modifica_id,  
+//      echo $res[$i]["insumo_id"];
+      $id =    DB::table('stock_movimiento')->insertGetId([          
+        'insumo_id' =>  $res[$i]["insumo_id"], 
+        'cantidad' => $res[$i]["cantidad"],    
+        'cantidad_usada' => $res[$i]["cantidad_usada"],  
+        'cantidad_existente' => $res[$i]["cantidad_existente"],    
+        'importe_unitario' => $res[$i]["importe_unitario"],  
+        'importe_acumulado' => $res[$i]["importe_acumulado"],  
+        'importe_total' => $res[$i]["importe_total"],
+        'usuario_modifica_id' => $res[$i]["usuario_modifica_id"],  
         'fecha_ingreso' => $fecha_ingreso,    
         'fecha_movimiento' => $fecha_movimiento,  
         'estado' => 'ACTIVO',    
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
-    ]);    
+    ]);   
+    //echo $res["nombre"];
+   //echo $t[$i]['insumo_id'];
+  //var_dump($res);    
+      }  
+   } catch (\Throwable $th) {
+     //throw $th;
+   }
+     
 
 
-      return response()->json($turno, "200");  
+      return response()->json('ok', "200");  
     }
 
 

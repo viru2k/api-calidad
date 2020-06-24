@@ -247,6 +247,8 @@ class UserController extends ApiController
 
     public function EditarUsuarioPassword(Request $request,$id )
     {
+
+        bcrypt($request->password);
         //ech
         $result = DB::select( DB::raw(" 
         SELECT * FROM  users WHERE id = :id")
@@ -260,7 +262,7 @@ class UserController extends ApiController
        $update = DB::table('users')->limit(1) 
        ->where('id',  $id)
        ->update( [ 
-        'password' => $ret_password,       
+        'password' => bcrypt($request->password),       
         'updated_at' => date("Y-m-d H:i:s")     ]); 
 
    
