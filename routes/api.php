@@ -129,11 +129,16 @@ Route::name('insumos-consulta')->get('insumos/by/fecha', 'Insumos\InsumoControll
 Route::name('insumos-consulta')->get('insumos/by/articulo', 'Insumos\InsumoController@getInsumosByArticulo');
 Route::name('insumos-consulta')->put('insumos/{id}', 'Insumos\InsumoController@putInsumos'); 
 
+
+Route::name('insumos-consulta')->get('insumos/stock/existencia', 'Insumos\InsumoController@getStockExistencia');
 Route::name('insumos-consulta')->get('insumos/stock/by/estado', 'Insumos\InsumoController@getStockInsumoByEstado');
+Route::name('insumos-consulta')->get('insumos/stock/by/estado/existencia/condicion', 'Insumos\InsumoController@getStockInsumoByEstadoExistencia');
 Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo', 'Insumos\InsumoController@getStockMovimientoByInsumoAndEstado');
 Route::name('insumos-consulta')->get('insumos/stock/by/estado/insumo/existencia', 'Insumos\InsumoController@getStockMovimientoByEstadoConExistencia');
 Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoController@getStockInsumoByDate');
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
+Route::name('insumos-consulta')->get('insumos/stock/produccion/by/movimiento/id', 'Insumos\InsumoController@getStockMovimientoByMovimientoId');
+
 // INGRESO DE INSUMOS A STOCK
 Route::name('calidad')->post('insumos/stock/ingreso', 'Insumos\InsumoController@setInsumoStock'); 
 /* -------------------------------------------------------------------------- */

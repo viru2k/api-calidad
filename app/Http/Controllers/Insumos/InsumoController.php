@@ -106,6 +106,8 @@ class InsumoController extends ApiController
 //      echo $res[$i]["insumo_id"];
       $id =    DB::table('stock_movimiento')->insertGetId([          
         'insumo_id' =>  $res[$i]["insumo_id"], 
+        'comprobante' => $res[$i]["comprobante"],    
+        'lote' => $res[$i]["lote"],    
         'cantidad' => $res[$i]["cantidad"],    
         'cantidad_usada' => $res[$i]["cantidad_usada"],  
         'cantidad_existente' => $res[$i]["cantidad_existente"],    
@@ -124,7 +126,7 @@ class InsumoController extends ApiController
   //var_dump($res);    
       }  
    } catch (\Throwable $th) {
-     //throw $th;
+   //  throw $th;
    }
      
 
@@ -151,6 +153,8 @@ class InsumoController extends ApiController
       ->where('id', $id)
       ->update([  
         'insumo_id' => $request->input('insumo_id'),
+        'comprobante' => $request->input('comprobante'),
+        'lote' => $request->input('lote'),
         'cantidad' => $request->input('cantidad'),
         'cantidad_usada' => $request->input('cantidad_usada'),
         'cantidad_existente' => $request->input('cantidad_existente'),
@@ -205,12 +209,43 @@ public function getStockInsumoByEstado(Request $request)
 {
     $estado =  $request->input('estado');   
 
-  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado, insumo.nombre, insumo.cantidad_unitaria, insumo.cantidad_empaque 
+  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado, insumo.nombre, insumo.cantidad_unitaria, insumo.cantidad_empaque 
   FROM stock_movimiento, insumo 
   WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.estado = :estado
    "), array(                       
         'estado' => $estado
       ));
+
+      return response()->json($res, "200");
+}
+
+
+
+public function getStockInsumoByEstadoExistencia(Request $request)
+{
+    $estado =  $request->input('estado');   
+    $condicion = $request->input('condicion');   
+    if($condicion === 'SIN_MOVIMIENTO') {
+      //echo $condicion;
+      $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, 
+      fecha_ingreso, fecha_movimiento, stock_movimiento.estado, insumo.nombre, insumo.cantidad_unitaria, insumo.cantidad_empaque 
+      FROM stock_movimiento, insumo 
+      WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.estado = :estado AND  cantidad_existente =  cantidad AND  cantidad_existente > 0
+       "), array(                       
+            'estado' => $estado
+          ));
+    }
+
+    if($condicion === 'CON_EXISTENCIA') {
+    //  echo $condicion;
+      $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado, insumo.nombre, insumo.cantidad_unitaria, insumo.cantidad_empaque 
+      FROM stock_movimiento, insumo 
+      WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.estado = :estado AND  cantidad_existente > 0
+       "), array(                       
+            'estado' => $estado
+          ));
+    }
+  
 
       return response()->json($res, "200");
 }
@@ -224,7 +259,7 @@ public function getStockMovimientoByInsumoAndEstado(Request $request)
     $insumo_id =  $request->input('insumo_id');   
     $estado =  $request->input('estado');  
 
-  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, cantidad, cantidad_usada, cantidad_existente , importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido 
+  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente , importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido 
   FROM stock_movimiento, insumo, users 
   WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id  AND stock_movimiento.insumo_id = :insumo_id AND stock_movimiento.estado = :estado
    "), array(                       
@@ -242,7 +277,7 @@ public function getStockMovimientoByEstadoConExistencia(Request $request)
      
     $estado =  $request->input('estado');  
 
-  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, cantidad, cantidad_usada, cantidad_existente , importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido 
+  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante , stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente , importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido 
   FROM stock_movimiento, insumo, users 
   WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id   AND stock_movimiento.estado = :estado AND stock_movimiento.cantidad_existente > 0
    "), array(                               
@@ -260,7 +295,7 @@ public function getStockMovimientoByProduccion(Request $request)
 {
     $produccion_proceso_id =  $request->input('produccion_proceso_id');   
 
-  $res = DB::select( DB::raw("SELECT stock_movimiento_produccion.id, produccion_proceso_id, stock_movimiento_id, stock_movimiento_produccion.cantidad_usada, stock_movimiento_produccion.cantidad_existente, 
+  $res = DB::select( DB::raw("SELECT stock_movimiento_produccion.id,  comprobante, stock_movimiento.lote, produccion_proceso_id, stock_movimiento_id, stock_movimiento_produccion.cantidad_usada, stock_movimiento_produccion.cantidad_existente, 
   stock_movimiento_produccion.fecha_movimiento, 
   stock_movimiento_produccion.usuario_alta_id, produccion_proceso.id as produccion_proceso_id, produccion_proceso.lote, produccion_proceso.articulo_id, articulo.nombre, stock_movimiento.id as stock_movimiento_id,
   insumo.id as insumo_id, insumo.nombre,  users.nombreyapellido, produccion_proceso.cantidad_solicitada, produccion_proceso.cantidad_usada, produccion_proceso.cantidad_producida 
@@ -276,6 +311,52 @@ public function getStockMovimientoByProduccion(Request $request)
 }
 
 
+/* -------------------------------------------------------------------------- */
+/*        OBTENGO LAS PRODUCCIONES DONDE SE ASOCIO EL INGRESO DE INSUMO       */
+/* -------------------------------------------------------------------------- */
+
+
+
+public function getStockMovimientoByMovimientoId(Request $request)
+{
+    $stock_movimiento_id =  $request->input('id');   
+
+  $res = DB::select( DB::raw("SELECT stock_movimiento_produccion.id, stock_movimiento_produccion.produccion_proceso_id, stock_movimiento_produccion.stock_movimiento_id, stock_movimiento_produccion.cantidad_usada, 
+  stock_movimiento_produccion.cantidad_existente, stock_movimiento_produccion.fecha_movimiento, stock_movimiento_produccion.usuario_alta_id, stock_movimiento.insumo_id, stock_movimiento.comprobante, 
+  produccion_proceso.lote, stock_movimiento.cantidad as stock_movimiento_cantidad , stock_movimiento.cantidad_usada as  stock_movimiento_cantidad_usada, stock_movimiento.cantidad_existente as stock_movimiento_cantidad_existente, 
+  stock_movimiento.fecha_ingreso, insumo.nombre, insumo.descripcion, users.nombreyapellido, produccion_proceso.articulo_id, produccion_proceso.orden_produccion_detalle_id as produccion_id, 
+  articulo.nombre as articulo_nombre, articulo.descripcion 
+  FROM `stock_movimiento_produccion`, stock_movimiento, insumo, users, produccion_proceso, articulo 
+  WHERE  stock_movimiento_produccion.stock_movimiento_id = stock_movimiento.id AND stock_movimiento.insumo_id = insumo.id AND stock_movimiento_produccion.usuario_alta_id = users.id 
+  AND stock_movimiento_produccion.produccion_proceso_id = produccion_proceso.id AND produccion_proceso.articulo_id = articulo.id AND stock_movimiento.id = :stock_movimiento_id
+   "), array(                       
+        'stock_movimiento_id' => $stock_movimiento_id
+      ));
+
+      return response()->json($res, "200");
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                       OBTENGO LA EXISTENCIA DE STOCK DE TODOS LOS INSUMOS  */
+/* -------------------------------------------------------------------------- */
+
+public function getStockExistencia(Request $request)
+{
+  
+
+  $res = DB::select( DB::raw("SELECT  insumo_id, SUM(cantidad) AS cantidad, SUM(cantidad_usada) AS cantidad_usada, SUM(cantidad_existente) AS cantidad_existente,
+   SUM(importe_acumulado) AS importe_acumulado, SUM(importe_acumulado) AS importe_acumulado, SUM(importe_total) AS importe_total,insumo.nombre ,insumo.descripcion
+  FROM stock_movimiento, insumo, users 
+  WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id    AND stock_movimiento.cantidad_existente > 0   GROUP by insumo_id 
+ORDER BY `insumo`.`nombre` ASC
+   "));
+
+      return response()->json($res, "200");
+}
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                   OBTENGO EL INSUMO POR PERIODO DE FECHAS                  */
@@ -288,7 +369,10 @@ public function getStockInsumoByDate(Request $request)
     $tmp_fecha = str_replace('/', '-', $request->input('fecha_hasta'));
     $fecha_hasta =  date('Y-m-d H:i', strtotime($tmp_fecha));    
 
-  $res = DB::select( DB::raw("SELECT insumo_stock.id, insumo_stock.insumo_id, insumo_stock.fecha_ingreso, insumo_stock.fecha_finalizado, insumo_stock.cantidad, insumo_stock.cantidad_usada, insumo_stock.cantidad_existente, insumo_stock.unidad_id, insumo_stock.produccion_id, insumo_stock.usuario_alta_id, insumo_stock.estado, insumo_stock.created_at, insumo_stock.updated_at, users.nombreyapellido, insumo.descripcion insumo_descripcion, unidad.descripcion as unidad_descrpicion FROM insumo, unidad, users , insumo_stock LEFT JOIN produccion ON insumo_stock.produccion_id = produccion.id 
+  $res = DB::select( DB::raw("SELECT insumo_stock.id, insumo_stock.insumo_id, insumo_stock.fecha_ingreso, insumo_stock.fecha_finalizado, insumo_stock.cantidad, insumo_stock.cantidad_usada,
+   insumo_stock.cantidad_existente, insumo_stock.unidad_id,
+   insumo_stock.produccion_id, insumo_stock.usuario_alta_id, insumo_stock.estado, insumo_stock.created_at, insumo_stock.updated_at, users.nombreyapellido,
+    insumo.descripcion insumo_descripcion, unidad.descripcion as unidad_descrpicion FROM insumo, unidad, users , insumo_stock LEFT JOIN produccion ON insumo_stock.produccion_id = produccion.id 
   WHERE insumo_stock.insumo_id = insumo.id AND insumo_stock.unidad_id = unidad.id AND insumo_stock.usuario_alta_id = users.id  AND    insumo_stock.fecha_ingreso BETWEEN   :fecha_desde  and :fecha_hasta
    "), array(                       
         'fecha_desde' => $fecha_desde,
