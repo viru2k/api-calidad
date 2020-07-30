@@ -44,6 +44,7 @@ Route::resource('user', 'User\UserController');
 /* -------------------------------------------------------------------------- */
 
 Route::resource('unidad', 'Unidad\UnidadController'); 
+Route::resource('deposito', 'Deposito\DepositoController'); 
 Route::resource('grupoanalisis', 'GrupoAnalisis\GrupoAnalisisController'); 
 Route::resource('produccion', 'Produccion\ProduccionController'); 
 Route::resource('calidad', 'Calidad\CalidadController'); 
@@ -139,6 +140,10 @@ Route::name('insumos-consulta')->get('insumos/stock/by/dates', 'Insumos\InsumoCo
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/dates', 'Insumos\InsumoController@getStockInsumoProduccionByDate');
 Route::name('insumos-consulta')->get('insumos/stock/produccion/by/movimiento/id', 'Insumos\InsumoController@getStockMovimientoByMovimientoId');
 
+Route::name('insumo-movimiento')->post('insumos/deposito/movimiento', 'Deposito\DepositoController@setMovimientoDeposito'); 
+Route::name('insumo-movimiento')->get('insumos/deposito/movimiento/by/stock/movimiento', 'Deposito\DepositoController@getInsumoMovimientoDepositoByStockMovimiento'); 
+Route::name('insumo-movimiento')->get('insumos/deposito/movimiento/by/insumo/id', 'Deposito\DepositoController@getInsumoMovimientoDepositoByInsumoId'); 
+
 // INGRESO DE INSUMOS A STOCK
 Route::name('calidad')->post('insumos/stock/ingreso', 'Insumos\InsumoController@setInsumoStock'); 
 /* -------------------------------------------------------------------------- */
@@ -170,7 +175,8 @@ Route::name('produccion-consulta')->get('produccion/by/dates', 'Produccion\Produ
 Route::name('produccion-consulta')->put('produccion/{id}', 'Produccion\ProduccionController@updProduccionStock'); 
 Route::name('produccion-consulta')->post('produccion/stock', 'Produccion\ProduccionController@setProduccionStock');
 Route::name('produccion-consulta')->post('produccion/orden/produccion', 'Produccion\ProduccionController@setOrdenProduccion'); 
-Route::name('produccion-consulta')->get('produccion/orden/produccion/estado', 'Produccion\ProduccionController@getOrdenProduccionEstado');
+Route::name('produccion-consulta')->get('produccion/orden/produccion/estado', 'Produccion\ProduccionController@getOrdenProduccionEstado'); 
+Route::name('produccion-consulta')->get('produccion/orden/produccion/by/dates', 'Produccion\ProduccionController@getOrdenProduccionByDates');
 Route::name('produccion-consulta')->get('produccion/orden/produccion/by/id', 'Produccion\ProduccionController@getOrdenProduccionDetalleById');
 Route::name('produccion-consulta')->get('produccion/orden/produccion/by/estado', 'Produccion\ProduccionController@getOrdenProduccionDetalleByEstado');
 Route::name('produccion-consulta')->get('produccion/orden/produccion/estado/editar', 'Produccion\ProduccionController@updOrdenProduccion');

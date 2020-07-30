@@ -249,11 +249,30 @@ public function getOrdenProduccionEstado(Request $request)
   {
     $estado = $request->input('estado');
     $res = DB::select( DB::raw("SELECT orden_produccion.id, orden_produccion.fecha_creacion, orden_produccion.descripcion, orden_produccion.observacion,  orden_produccion.estado, orden_produccion.fecha_desde, orden_produccion.fecha_hasta, users.id as usuario_id, users.nombreyapellido   
-    FROM orden_produccion,users WHERE orden_produccion.usuario_modifica_id = users.id  ORDER BY fecha_creacion DESC
+    FROM orden_produccion,users WHERE orden_produccion.usuario_modifica_id = users.id  AND estado = :estado ORDER BY fecha_creacion DESC
     
     "), array(                       
           'estado' => $estado
         ));
+
+        return response()->json($res, "200");
+  }
+
+
+  public function getOrdenProduccionByDates(Request $request)
+  {
+
+    
+  $tmp_fecha = str_replace('/', '-', $request->input('fecha_desde'));
+  $fecha_desde =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+  $tmp_fecha = str_replace('/', '-', $request->input('fecha_hasta'));
+  $fecha_hasta =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+    
+    $estado = $request->input('estado');
+    $res = DB::select( DB::raw("SELECT orden_produccion.id, orden_produccion.fecha_creacion, orden_produccion.descripcion, orden_produccion.observacion,  orden_produccion.estado, orden_produccion.fecha_desde, orden_produccion.fecha_hasta, users.id as usuario_id, users.nombreyapellido   
+    FROM orden_produccion,users WHERE orden_produccion.usuario_modifica_id = users.id AND fecha_creacion BETWEEN '".$fecha_desde."' AND '".$fecha_hasta."'  ORDER BY fecha_creacion DESC
+    
+    "));
 
         return response()->json($res, "200");
   }
