@@ -189,7 +189,8 @@ Route::name('produccion-consulta')->get('produccion/detalle/by/produccion/id', '
 Route::name('produccion-consulta')->get('produccion/proceso/by/detalle/id', 'Produccion\ProduccionController@getProduccionProcesoByOrdenProduccionDetalleId');
 Route::name('produccion-consulta')->get('produccion/proceso/by/estado', 'Produccion\ProduccionController@getProduccionProcesoByEstado');
 Route::name('produccion-consulta')->get('produccion/proceso/by/dates', 'Produccion\ProduccionController@getProduccionProcesoByDates');
-
+Route::name('produccion-consulta')->get('produccion/stock/by/insumo/armado', 'Insumos\InsumoController@getStockByArmadoProducto');
+Route::name('produccion-consulta')->post('produccion/stock/movimiento/asociar', 'Produccion\ProduccionController@setInsumoStockMovimientoProduccion');
 
 
 /** FILE MANAGER **/

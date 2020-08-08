@@ -728,4 +728,43 @@ public function updOrdenProduccionProcesoEstado(Request $request){
     'updated_at' => date("Y-m-d H:i:s")]);
 }
 
+/* -------------------------------------------------------------------------- */
+/*                      ASOCIO EL STOCK A UNA PRODUCCION                      */
+/* -------------------------------------------------------------------------- */
+
+
+public function setInsumoStockMovimientoProduccion(Request $request)
+{
+  
+  foreach ($request->request->all()  as $req) {
+    //var_dump( $req);
+   //echo $req["stock_movimiento_id"];
+   
+    $id =    DB::table('stock_movimiento_produccion')
+      ->insertGetId([
+      'produccion_proceso_id' => $req["orden_produccion_detalle_id"], 
+      'stock_movimiento_id' => $req["stock_movimiento_id"], 
+      'cantidad_usada' => $req["cantidad_usada"], 
+      'cantidad_existente' => $req["cantidad_existente"], 
+      'fecha_movimiento' => date("Y-m-d H:i:s"),        
+      'usuario_alta_id' => $req["usuario_alta_id"],
+      'ubicacion' => 'PRODUCTO TERMINADO'
+      ]); 
+
+
+$res =  DB::table('stock_movimiento')
+  ->where('id',$req["stock_movimiento_id"])  
+  ->update([
+    'cantidad_usada' => $req["cantidad_usada"],        
+    'cantidad_existente' => $req["cantidad_existente"],
+    'usuario_modifica_id' => $req["usuario_alta_id"],
+    'updated_at' => date("Y-m-d H:i:s")]);
+  }
+ /*  
+   
+
+*/
+  return response()->json($res, "200");  
+}
+
 }

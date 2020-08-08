@@ -326,7 +326,7 @@ public function getStockMovimientoByMovimientoId(Request $request)
   produccion_proceso.lote, stock_movimiento.cantidad as stock_movimiento_cantidad , stock_movimiento.cantidad_usada as  stock_movimiento_cantidad_usada, stock_movimiento.cantidad_existente as stock_movimiento_cantidad_existente, 
   stock_movimiento.fecha_ingreso, insumo.nombre, insumo.descripcion, users.nombreyapellido, produccion_proceso.articulo_id, produccion_proceso.orden_produccion_detalle_id as produccion_id, 
   articulo.nombre as articulo_nombre, articulo.descripcion 
-  FROM `stock_movimiento_produccion`, stock_movimiento, insumo, users, produccion_proceso, articulo 
+  FROM stock_movimiento_produccion, stock_movimiento, insumo, users, produccion_proceso, articulo 
   WHERE  stock_movimiento_produccion.stock_movimiento_id = stock_movimiento.id AND stock_movimiento.insumo_id = insumo.id AND stock_movimiento_produccion.usuario_alta_id = users.id 
   AND stock_movimiento_produccion.produccion_proceso_id = produccion_proceso.id AND produccion_proceso.articulo_id = articulo.id AND stock_movimiento.id = :stock_movimiento_id
    "), array(                       
@@ -349,7 +349,7 @@ public function getStockExistencia(Request $request)
    SUM(importe_acumulado) AS importe_acumulado, SUM(importe_acumulado) AS importe_acumulado, SUM(importe_total) AS importe_total,insumo.nombre ,insumo.descripcion
   FROM stock_movimiento, insumo, users 
   WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id    AND stock_movimiento.cantidad_existente > 0   GROUP by insumo_id 
-ORDER BY `insumo`.`nombre` ASC
+ORDER BY insumo.nombre ASC
    "));
 
       return response()->json($res, "200");
@@ -402,5 +402,27 @@ public function getStockInsumoProduccionByDate(Request $request)
 
       return response()->json($res, "200");
 }
+
+/* -------------------------------------------------------------------------- */
+/*        OBTENGO EL STOCK DE INSUMOS PARA ASOCIAR A UNA PRODUCCION           */
+/* -------------------------------------------------------------------------- */
+
+public function getStockByArmadoProducto(Request $request)
+{
+    $articulo_id =  $request->input('articulo_id');   
+    $insumo_id =  $request->input('insumo_id');   
+
+  $res = DB::select( DB::raw("SELECT stock_movimiento.id AS stock_movimiento_id, insumo.id AS insumo_id, nombre, descripcion,   cantidad_unitaria, cantidad_empaque, precio_unitario, precio_empaque,  insumo.estado ,stock_armado_producto.id AS stock_armado_producto_id , stock_armado_producto.cantidad AS stock_armado_producto_cantidad, comprobante, lote, stock_movimiento.cantidad , stock_movimiento.cantidad_usada, stock_movimiento.cantidad_existente, stock_movimiento.importe_acumulado, stock_movimiento.fecha_ingreso, stock_movimiento.fecha_movimiento 
+  FROM  insumo , stock_armado_producto, stock_movimiento 
+  WHERE insumo.id = stock_armado_producto.insumo_id AND insumo.id = stock_movimiento.insumo_id  AND stock_armado_producto.articulo_id = :articulo_id AND stock_movimiento.insumo_id = :insumo_id AND stock_movimiento.cantidad_existente > 0 ORDER BY insumo.id DESC
+   "), array(                       
+        'articulo_id' => $articulo_id,
+        'insumo_id' => $insumo_id
+      ));
+
+      return response()->json($res, "200");
+}
+
+
     
 }
