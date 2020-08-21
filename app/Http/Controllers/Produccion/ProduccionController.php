@@ -611,6 +611,7 @@ public function setProduccionProceso(Request $request){
         'hora_fin' =>  $request->hora_fin,
         'estado' => $request->estado,      
         'lote' => $request->lote,      
+        'deposito_id' => $request->deposito_id,
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
     ]);   
@@ -748,7 +749,7 @@ public function setInsumoStockMovimientoProduccion(Request $request)
       'cantidad_existente' => $req["cantidad_existente"], 
       'fecha_movimiento' => date("Y-m-d H:i:s"),        
       'usuario_alta_id' => $req["usuario_alta_id"],
-      'ubicacion' => 'PRODUCTO TERMINADO'
+      'deposito_id' => $req["deposito_id"]
       ]); 
 
 
@@ -758,9 +759,10 @@ $res =  DB::table('stock_movimiento')
     'cantidad_usada' => $req["cantidad_usada"],        
     'cantidad_existente' => $req["cantidad_existente"],
     'usuario_modifica_id' => $req["usuario_alta_id"],
+    'ultimo_deposito_id' => $req["ultimo_deposito_id"],
     'updated_at' => date("Y-m-d H:i:s")]);
   }
- /*  
+ /*  ultimo_deposito_id
    
 
 */

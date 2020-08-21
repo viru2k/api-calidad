@@ -123,6 +123,7 @@ class InsumoController extends ApiController
         'usuario_modifica_id' => $res["usuario_modifica_id"],  
         'fecha_ingreso' => $fecha_ingreso,    
         'fecha_movimiento' => $fecha_movimiento,  
+        'ultimo_deposito_id' => $res["ultimo_deposito_id"],  
         'estado' => 'ACTIVO',    
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
@@ -171,6 +172,7 @@ class InsumoController extends ApiController
         'usuario_modifica_id' => $request->input('usuario_modifica_id'),
         'fecha_ingreso' => $fecha_ingreso,
         'fecha_movimiento' => $fecha_movimiento,
+        'ultimo_deposito_id' => $request->input('ultimo_deposito_id'),       
         'estado' => $request->input('estado'),       
         'updated_at' => date("Y-m-d H:i:s")]);
         
@@ -269,9 +271,10 @@ public function getStockMovimientoByInsumoAndEstado(Request $request)
     $estado =  $request->input('estado');  
 
   $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente ,
-   importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido  , importe_cotizacion_dolares, importe_dolares, importe_total_dolares
-  FROM stock_movimiento, insumo, users 
-  WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id  AND stock_movimiento.insumo_id = :insumo_id AND stock_movimiento.estado = :estado
+   importe_acumulado, importe_acumulado, importe_total, stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado,insumo.nombre,  users.nombreyapellido  ,
+    importe_cotizacion_dolares, importe_dolares, importe_total_dolares, stock_movimiento.ultimo_deposito_id, deposito.descripcion
+  FROM stock_movimiento, insumo, users, deposito 
+  WHERE deposito.id = stock_movimiento.ultimo_deposito_id AND stock_movimiento.insumo_id = insumo.id AND stock_movimiento.usuario_modifica_id = users.id  AND stock_movimiento.insumo_id = :insumo_id AND stock_movimiento.estado = :estado
    "), array(                       
         'insumo_id' => $insumo_id,
         'estado' => $estado,
