@@ -105,12 +105,16 @@ class InsumoController extends ApiController
       $tmp_fecha = str_replace('/', '-', $res["fecha_ingreso"]);
       $fecha_ingreso =  date('Y-m-d H:i', strtotime($tmp_fecha));   
       $fecha_movimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+      $tmp_fecha = str_replace('/', '-', $res["fecha_vencimiento"]);
+      $fecha_vencimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+      
 
 //      echo $res[$i]["insumo_id"];
       $id =    DB::table('stock_movimiento')->insertGetId([          
         'insumo_id' =>  $res["insumo_id"], 
         'comprobante' => $res["comprobante"],    
-        'lote' => $res["lote"],    
+        'lote' => $res["lote"],
+        'fecha_vencimiento' => $fecha_vencimiento,
         'cantidad' => $res["cantidad"],    
         'cantidad_usada' => $res["cantidad_usada"],  
         'cantidad_existente' => $res["cantidad_existente"],    
@@ -149,10 +153,12 @@ class InsumoController extends ApiController
     public function updInsumoStock(Request $request, $id)
     {
       
-      $tmp_fecha = str_replace('/', '-', $request->input('fecha_ingreso'));
-      $fecha_ingreso =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+
       $tmp_fecha = str_replace('/', '-', $request->input('fecha_movimiento'));
-      $fecha_movimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));   
+      $fecha_movimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));  
+      
+      $tmp_fecha = str_replace('/', '-', $request->input["fecha_vencimiento"]);
+      $fecha_vencimiento =  date('Y-m-d H:i', strtotime($tmp_fecha));   
 
       $res =  DB::table('stock_movimiento')
       ->where('id', $id)
@@ -160,6 +166,7 @@ class InsumoController extends ApiController
         'insumo_id' => $request->input('insumo_id'),
         'comprobante' => $request->input('comprobante'),
         'lote' => $request->input('lote'),
+        'fecha_vencimiento' => $fecha_vencimiento,
         'cantidad' => $request->input('cantidad'),
         'cantidad_usada' => $request->input('cantidad_usada'),
         'cantidad_existente' => $request->input('cantidad_existente'),
@@ -169,8 +176,7 @@ class InsumoController extends ApiController
         'importe_dolares' => $request->input('importe_dolares'),
         'importe_total_dolares' => $request->input('importe_total_dolares'),
         'importe_total' => $request->input('importe_total'),
-        'usuario_modifica_id' => $request->input('usuario_modifica_id'),
-        'fecha_ingreso' => $fecha_ingreso,
+        'usuario_modifica_id' => $request->input('usuario_modifica_id'),        
         'fecha_movimiento' => $fecha_movimiento,
         'ultimo_deposito_id' => $request->input('ultimo_deposito_id'),       
         'estado' => $request->input('estado'),       
@@ -218,7 +224,7 @@ public function getStockInsumoByEstado(Request $request)
 {
     $estado =  $request->input('estado');   
 
-  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total,
+  $res = DB::select( DB::raw("SELECT stock_movimiento.id, insumo_id, comprobante, stock_movimiento.lote, cantidad, cantidad_usada, cantidad_existente,importe_unitario, importe_acumulado, importe_total, fecha_vencimiento,
    stock_movimiento.usuario_modifica_id, fecha_ingreso, fecha_movimiento, stock_movimiento.estado, insumo.nombre, insumo.cantidad_unitaria, insumo.cantidad_empaque  ,importe_cotizacion_dolares, importe_dolares, importe_total_dolares
   FROM stock_movimiento, insumo 
   WHERE stock_movimiento.insumo_id = insumo.id AND stock_movimiento.estado = :estado
@@ -427,7 +433,7 @@ public function getStockByArmadoProducto(Request $request)
     $insumo_id =  $request->input('insumo_id');   
 
   $res = DB::select( DB::raw("SELECT stock_movimiento.id AS stock_movimiento_id, insumo.id AS insumo_id, nombre, descripcion,   cantidad_unitaria, cantidad_empaque, precio_unitario, precio_empaque,  
-  insumo.estado ,stock_armado_producto.id AS stock_armado_producto_id , stock_armado_producto.cantidad AS stock_armado_producto_cantidad, comprobante, lote, stock_movimiento.cantidad , 
+  insumo.estado ,stock_armado_producto.id AS stock_armado_producto_id , stock_armado_producto.cantidad AS stock_armado_producto_cantidad, comprobante, lote, stock_movimiento.cantidad ,  fecha_vencimiento,
   stock_movimiento.cantidad_usada, stock_movimiento.cantidad_existente, stock_movimiento.importe_acumulado, stock_movimiento.fecha_ingreso, stock_movimiento.fecha_movimiento ,importe_cotizacion_dolares, importe_dolares, importe_total_dolares
   FROM  insumo , stock_armado_producto, stock_movimiento 
   WHERE insumo.id = stock_armado_producto.insumo_id AND insumo.id = stock_movimiento.insumo_id  AND stock_armado_producto.articulo_id = :articulo_id AND stock_movimiento.insumo_id = :insumo_id AND stock_movimiento.cantidad_existente > 0 ORDER BY insumo.id DESC

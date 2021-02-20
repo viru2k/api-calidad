@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Articulos;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\models\Articulo; 
+use App\models\Articulo;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\DB;
 
 class ArticuloController extends ApiController
 {
-  
+
 /* -------------------------------------------------------------------------- */
 /*                            OBTENGO LOS ARTICULOS                           */
 /* -------------------------------------------------------------------------- */
@@ -19,41 +19,42 @@ class ArticuloController extends ApiController
     {
       $res = DB::select( DB::raw("SELECT articulo.id ,articulo.nombre, articulo.descripcion , unidad.descripcion as unidad_descripcion, articulo.unidad_id ,articulo.usuario_modifica_id FROM articulo, unidad WHERE articulo.unidad_id = unidad.id
        "));
-    
+
           return response()->json($res, "200");
     }
 
 /* -------------------------------------------------------------------------- */
 /*                             GUARDO UN ARTICULO                             */
 /* -------------------------------------------------------------------------- */
-    
+
     public function postArticulo(Request $request)
     {
-       
+
       $articulo_id =    DB::table('articulo')->insertGetId([
-        'nombre' => $request->nombre, 
-        'descripcion' => $request->descripcion, 
-        'unidad_id' => $request->unidad_id,        
-        'usuario_modifica_id'=> $request->usuario_modifica_id,        
+        'nombre' => $request->nombre,
+        'descripcion' => $request->descripcion,
+        'unidad_id' => $request->unidad_id,
+        'usuario_modifica_id'=> $request->usuario_modifica_id,
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
-    ]);    
+    ]);
 
       $id =    DB::table('articulo_propiedades')->insertGetId([
         'articulo_id' => $articulo_id,
-        'unidades' => $request->unidades, 
-        'pallet_pisos' => $request->pallet_pisos, 
-        'pallet_pack' => $request->pallet_pack,        
-        'volumen' => $request->volumen,  
-        'usuario_modifica_id'=> $request->usuario_modifica_id,        
+        'unidades' => $request->unidades,
+        'pallet_pisos' => $request->pallet_pisos,
+        'pallet_pack' => $request->pallet_pack,
+        'volumen' => $request->volumen,
+        'unidad_hora' => $request->unidad_hora,
+        'usuario_modifica_id'=> $request->usuario_modifica_id,
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
-    ]);    
+    ]);
       return response()->json($id, "200");
     }
 
 
-    
+
 /* -------------------------------------------------------------------------- */
 /*                            ACTUALIZO UN ARTICULO                           */
 /* -------------------------------------------------------------------------- */
@@ -66,8 +67,8 @@ public function putArticulo(Request $request, $id)
     ->update([
       'nombre' => $request->input('nombre'),
       'descripcion' => $request->input('descripcion'),
-      'unidad_id' =>  $request->input('unidad_id'),   
-      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),           
+      'unidad_id' =>  $request->input('unidad_id'),
+      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),
       'updated_at' => date("Y-m-d H:i:s")]);
 
     $res =  DB::table('articulo_propiedades')
@@ -75,9 +76,10 @@ public function putArticulo(Request $request, $id)
     ->update([
       'unidades' => $request->input('unidades'),
       'pallet_pisos' => $request->input('pallet_pisos'),
-      'pallet_pack' =>  $request->input('pallet_pack'),   
-      'volumen' =>  $request->input('volumen'),   
-      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),           
+      'pallet_pack' =>  $request->input('pallet_pack'),
+      'volumen' =>  $request->input('volumen'),
+      'unidad_hora' =>  $request->input('unidad_hora'),
+      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),
       'updated_at' => date("Y-m-d H:i:s")]);
       return response()->json($res, "200");
 }
@@ -89,12 +91,12 @@ public function putArticulo(Request $request, $id)
 public function  getArticulo(Request $request)
 {
     $articulo_id = $request->input('articulo_id');
- 
-  $res = DB::select( DB::raw("SELECT articulo.id, articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos, 
-                  articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido , unidad.id as unidad_id
-                  FROM articulo_propiedades, articulo, unidad, users 
+
+  $res = DB::select( DB::raw("SELECT articulo.id, articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos,
+                  articulo_propiedades.pallet_pack, articulo_propiedades.volumen, articulo_propiedades.unidad_hora, unidad.descripcion as unidad_descripcion, users.nombreyapellido , unidad.id as unidad_id
+                  FROM articulo_propiedades, articulo, unidad, users
                   WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id AND articulo.id = :articulo_id
-   "), array(                       
+   "), array(
     'articulo_id' => $articulo_id
   ));
 
@@ -108,11 +110,11 @@ public function  getArticulo(Request $request)
 /* -------------------------------------------------------------------------- */
 
 public function  getArticulos(Request $request)
-{    
- 
+{
+
   $res = DB::select( DB::raw("SELECT articulo.id,  articulo.nombre, articulo.descripcion, articulo_propiedades.unidades, articulo_propiedades.pallet_pisos,
-                             articulo_propiedades.pallet_pack, articulo_propiedades.volumen, unidad.descripcion as unidad_descripcion, users.nombreyapellido ,  unidad.id as unidad_id
-                  FROM articulo_propiedades, articulo, unidad, users 
+                             articulo_propiedades.pallet_pack, articulo_propiedades.volumen,  articulo_propiedades.unidad_hora, unidad.descripcion as unidad_descripcion, users.nombreyapellido ,  unidad.id as unidad_id
+                  FROM articulo_propiedades, articulo, unidad, users
                   WHERE articulo_propiedades.articulo_id = articulo.id AND articulo.unidad_id = unidad.id AND articulo.usuario_modifica_id = users.id
    "));
 
@@ -129,18 +131,19 @@ public function  getArticulos(Request $request)
 /* -------------------------------------------------------------------------- */
 
     public function setArticuloPropiedades(Request $request){
-    
+
       $id =    DB::table('articulo_propiedades')->insertGetId([
-        'articulo_id' => $request->articulo_id, 
-        'unidades' => $request->unidades,        
-        'pallet_pisos' => $request->pallet_pisos, 
-        'pallet_pack' => $request->pallet_pack,         
-        'volumen' => $request->volumen,         
-        'usuario_modifica_id' => $request->usuario_modifica_id,         
+        'articulo_id' => $request->articulo_id,
+        'unidades' => $request->unidades,
+        'pallet_pisos' => $request->pallet_pisos,
+        'pallet_pack' => $request->pallet_pack,
+        'volumen' => $request->volumen,
+        'unidad_hora' => $request->unidad_hora,
+        'usuario_modifica_id' => $request->usuario_modifica_id,
         'created_at' => date("Y-m-d H:i:s"),
         'updated_at' => date("Y-m-d H:i:s")
-    ]);    
-      return response()->json($id, "200");  
+    ]);
+      return response()->json($id, "200");
     }
 
 
@@ -151,16 +154,17 @@ public function  getArticulos(Request $request)
 
 public function updateArticuloPropiedades(Request $request, $id)
 {
-   
+
     $res =  DB::table('articulo_propiedades')
     ->where('id', $id)
     ->update([
       'articulo_id' => $request->input('articulo_id'),
       'unidades' => $request->input('unidades'),
-      'pallet_pisos' =>  $request->input('pallet_pisos'),   
-      'pallet_pack' =>  $request->input('pallet_pack'),  
-      'volumen' =>  $request->input('volumen'),            
-      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),           
+      'pallet_pisos' =>  $request->input('pallet_pisos'),
+      'pallet_pack' =>  $request->input('pallet_pack'),
+      'volumen' =>  $request->input('volumen'),
+      'unidad_hora' =>  $request->input('unidad_hora'),
+      'usuario_modifica_id' =>  $request->input('usuario_modifica_id'),
       'updated_at' => date("Y-m-d H:i:s")]);
 
       return response()->json($res, "200");
