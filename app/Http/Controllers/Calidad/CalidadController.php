@@ -144,15 +144,13 @@ class CalidadController extends ApiController
 $cont = count($request->all());
 //var_dump($request);
   while($i< $cont) {
-   // var_dump($res[$i]['parametro_id']);
-  // var_dump($req[$i]);
 
-   // echo $req[$i]['id'];
      $id =    DB::table('calidad_control_parametro_valor')->insertGetId([
       'calidad_control_parametro_id' => $r[$i]['id'],
       'calidad_valor' => $r[$i]['calidad_valor'],
       'calidad_ranking' => $r[$i]['calidad_ranking'],
       'calidad_verificado' => $r[$i]['calidad_verificado'],
+      'calidad_tiempo' => $r[$i]['calidad_tiempo'],
       'usuario_modifica_id' => $r[$i]['usuario_modifica_id'],
       'es_no_conformidad' => $r[$i]['es_no_conformidad'],
       'tiene_accion_correctiva' => $r[$i]['tiene_accion_correctiva'],
@@ -180,7 +178,7 @@ $cont = count($request->all());
       fecha_carga, produccion_proceso_id, calidad_control.calidad_titulo, calidad_control.calidad_descripcion,
       calidad_control.ficha_nro, calidad_parametro.parametro, calidad_parametro.control_tipo, users.nombreyapellido, produccion_proceso.lote, orden_produccion_detalle.fecha_produccion,
       articulo.nombre as articulo_nombre ,calidad_control_parametro.parametro_maximo, calidad_control_parametro.parametro_minimo,
-       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado
+       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado , calidad_control_parametro_valor.calidad_tiempo
       FROM  calidad_control, calidad_control_parametro, calidad_parametro , calidad_control_parametro_valor, produccion_proceso, orden_produccion_detalle, articulo, users
       WHERE calidad_control.id = calidad_control_parametro.control_calidad_id AND calidad_parametro.id = calidad_control_parametro.parametro_id
       AND calidad_control_parametro_valor.calidad_control_parametro_id = calidad_control_parametro.id AND calidad_control_parametro_valor.usuario_modifica_id = users.id
@@ -205,7 +203,7 @@ $cont = count($request->all());
       fecha_carga, produccion_proceso_id, calidad_control.calidad_titulo, calidad_control.calidad_descripcion,
       calidad_control.ficha_nro, calidad_parametro.parametro, calidad_parametro.control_tipo, users.nombreyapellido, produccion_proceso.lote, orden_produccion_detalle.fecha_produccion,
       articulo.nombre as articulo_nombre , calidad_control_parametro.parametro_maximo, calidad_control_parametro.parametro_minimo, tiene_desviacion_parametro,
-       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado
+       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado , calidad_control_parametro_valor.calidad_tiempo
       FROM  calidad_control, calidad_control_parametro, calidad_parametro , calidad_control_parametro_valor, produccion_proceso, orden_produccion_detalle, articulo, users
       WHERE calidad_control.id = calidad_control_parametro.control_calidad_id AND calidad_parametro.id = calidad_control_parametro.parametro_id
       AND calidad_control_parametro_valor.calidad_control_parametro_id = calidad_control_parametro.id AND calidad_control_parametro_valor.usuario_modifica_id = users.id
@@ -258,7 +256,7 @@ $cont = count($request->all());
       produccion_proceso.estado, calidad_control_parametro_valor.id as  calidad_control_parametro_valor_id , calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.es_no_conformidad,
       calidad_control_parametro_valor.tiene_accion_correctiva,calidad_control_parametro_valor.tiene_accion_correctiva_descripcion, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control_parametro_valor.fecha_carga,   calidad_control.calidad_titulo, calidad_control.calidad_descripcion,
       calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.control_tipo, calidad_parametro.id as calidad_parametro_id ,
-       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado
+       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado,  calidad_control_parametro_valor.calidad_tiempo
       FROM produccion_proceso, calidad_control_parametro_valor, calidad_control_parametro, calidad_control, calidad_parametro
       WHERE produccion_proceso.id = calidad_control_parametro_valor.produccion_proceso_id AND calidad_control_parametro.parametro_id = calidad_parametro.id
       AND calidad_control_parametro.control_calidad_id = calidad_control.id
@@ -278,7 +276,7 @@ $cont = count($request->all());
 
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, produccion_proceso.lote, produccion_proceso.hora_fin, produccion_proceso.hora_inicio, produccion_proceso.estado, calidad_control_parametro_valor.id as  calidad_control_parametro_valor_id , calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.es_no_conformidad, calidad_control_parametro_valor.tiene_accion_correctiva, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control.calidad_titulo,
       calidad_parametro.control_tipo, calidad_control.calidad_descripcion, calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.id as calidad_parametro_id  ,
-       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado
+       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado , calidad_control_parametro_valor.calidad_tiempo
       FROM produccion_proceso, calidad_control_parametro_valor, calidad_control_parametro, calidad_control, calidad_parametro
       WHERE produccion_proceso.id = calidad_control_parametro_valor.produccion_proceso_id
       AND calidad_control_parametro.parametro_id = calidad_parametro.id
