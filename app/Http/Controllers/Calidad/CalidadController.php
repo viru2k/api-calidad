@@ -255,7 +255,7 @@ $cont = count($request->all());
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, produccion_proceso.lote, produccion_proceso.hora_fin, produccion_proceso.hora_inicio,
       produccion_proceso.estado, calidad_control_parametro_valor.id as  calidad_control_parametro_valor_id , calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.es_no_conformidad,
       calidad_control_parametro_valor.tiene_accion_correctiva,calidad_control_parametro_valor.tiene_accion_correctiva_descripcion, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control_parametro_valor.fecha_carga,   calidad_control.calidad_titulo, calidad_control.calidad_descripcion,
-      calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.control_tipo, calidad_parametro.id as calidad_parametro_id ,
+      calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.control_tipo, calidad_parametro.id as calidad_parametro_id ,  calidad_control.id as  calidad_control_id,
        calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado,  calidad_control_parametro_valor.calidad_tiempo
       FROM produccion_proceso, calidad_control_parametro_valor, calidad_control_parametro, calidad_control, calidad_parametro
       WHERE produccion_proceso.id = calidad_control_parametro_valor.produccion_proceso_id AND calidad_control_parametro.parametro_id = calidad_parametro.id
@@ -269,6 +269,28 @@ $cont = count($request->all());
     }
 
 
+    public function getControlesDetalleByControlId(Request $request)
+    {
+      $produccion_proceso_id = $request->input('produccion_proceso_id');
+      $calidad_control_id = $request->input('calidad_control_id');
+
+
+      $res = DB::select( DB::raw("select calidad_control.id as calidad_contro_id, calidad_descripcion, ficha_nro, calidad_control_parametro.id as calidad_control_parametro_id ,
+      parametro_maximo, parametro_minimo, calidad_parametro.parametro, control_tipo,
+      calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_tiempo, calidad_control_parametro_valor.calidad_verificado, calidad_control_parametro_valor.calidad_valor , fecha_carga, produccion_proceso_id,  calidad_control.id as  calidad_control_id
+      from calidad_control, calidad_control_parametro, calidad_parametro, calidad_control_parametro_valor
+       WHERE calidad_control.id = calidad_control_parametro.control_calidad_id
+       AND calidad_control_parametro.parametro_id = calidad_parametro.id
+       AND  calidad_control_parametro_valor.calidad_control_parametro_id = calidad_control_parametro.id AND calidad_control_parametro_valor.produccion_proceso_id = :produccion_proceso_id  AND calidad_control.id = :calidad_control_id
+      "), array(
+            'produccion_proceso_id' => $produccion_proceso_id,
+            'calidad_control_id' => $calidad_control_id
+          ));
+
+          return response()->json($res, "200");
+    }
+
+
     public function getControlesByIdProduccion(Request $request)
     {
       $produccion_proceso_id = $request->input('produccion_proceso_id');
@@ -276,7 +298,7 @@ $cont = count($request->all());
 
       $res = DB::select( DB::raw("SELECT produccion_proceso.id, produccion_proceso.lote, produccion_proceso.hora_fin, produccion_proceso.hora_inicio, produccion_proceso.estado, calidad_control_parametro_valor.id as  calidad_control_parametro_valor_id , calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.es_no_conformidad, calidad_control_parametro_valor.tiene_accion_correctiva, calidad_control_parametro_valor.es_no_conformidad_descripcion, calidad_control.calidad_titulo,
       calidad_parametro.control_tipo, calidad_control.calidad_descripcion, calidad_control.ficha_nro, calidad_parametro.parametro , calidad_parametro.id as calidad_parametro_id  ,
-       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado , calidad_control_parametro_valor.calidad_tiempo
+       calidad_control_parametro_valor.calidad_valor, calidad_control_parametro_valor.calidad_ranking, calidad_control_parametro_valor.calidad_verificado , calidad_control_parametro_valor.calidad_tiempo, calidad_control.id as  calidad_control_id
       FROM produccion_proceso, calidad_control_parametro_valor, calidad_control_parametro, calidad_control, calidad_parametro
       WHERE produccion_proceso.id = calidad_control_parametro_valor.produccion_proceso_id
       AND calidad_control_parametro.parametro_id = calidad_parametro.id
